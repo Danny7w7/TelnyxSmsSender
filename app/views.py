@@ -47,7 +47,7 @@ def sendMessage(request):
     telnyx.api_key = settings.TELNYX_API_KEY
     telnyx.Message.create(
     from_="+17866931008", # Your Telnyx number
-    to=request.POST['phoneNumber'],
+    to=f'+{request.POST['phoneNumber']}',
     text= request.POST['messageContent']
     )
     client = createOrUpdateClient(request.POST['phoneNumber'])
@@ -71,7 +71,6 @@ def sms(request):
         if 'data' in body and 'payload' in body['data']:
             payload = body['data']['payload']
             if body['data'].get('event_type') == 'message.received':
-                print('Por lo menos aqui si esta entrando negro')
                 client = createOrUpdateClient(int(payload.get('from', {}).get('phone_number')))
                 chat = createOrUpdateChat(client)
                 saveMessageInDb('Client', payload.get('text'), chat)
@@ -121,7 +120,6 @@ def createOrUpdateClient(phoneNumber, name=None):
             phone_number=phoneNumber
         )
         client.save()
-    print(f'Al final cliente quedo como {client}')
     return client
 
 @login_required(login_url='/login')
@@ -134,7 +132,6 @@ def chat(request, phoneNumber):
     client = Clients.objects.get(phone_number=phoneNumber) 
     chat = Chat.objects.get(client=client.id)
     messages = Messages.objects.filter(chat=chat.id)
-    print(chat)
     clients = Clients.objects.all()
     context = {
         'client':client,

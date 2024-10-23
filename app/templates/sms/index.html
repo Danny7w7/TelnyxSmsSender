@@ -103,8 +103,7 @@
         <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
         <script>
             var user_id = '{{request.user.id}}'
-            var chat_id = '{{ chat }}'
-            console.log(chat_id)
+            var chat_id = '{{ client.phone_number }}'
         </script>
         <script src="{% static 'js/scripts.js' %}"></script>
         <script>

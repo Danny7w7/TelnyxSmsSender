@@ -43,7 +43,6 @@ $(function () {
     const buttonSendMessage = document.getElementById('sendMessage');
     const inputMessage = document.getElementById('messageContent');
     const boxMessage = document.getElementById('boxMessage');
-
     if (chat_id != '') {
         var chatSocket = new WebSocket(url);
 
@@ -61,7 +60,7 @@ $(function () {
             var username = datamsj.username;
             var datetime = datamsj.datetime;
 
-            addMessage(msj, 'receive');
+            addMessage(msj, 'recieve');
         };
 
         buttonSendMessage.addEventListener('click', sendMessage);
@@ -74,10 +73,11 @@ $(function () {
         function sendMessage() {
             const message = inputMessage.value.trim();
             if (message) {
-                addMessage(message, 'send');
                 chatSocket.send(JSON.stringify({
                     message: message
                 }));
+                sendFirstMessage(message)
+                addMessage(message, 'Agent');
                 inputMessage.value = ''; // Limpiar el input después de enviar
             } else {
                 console.log('El mensaje está vacío');
@@ -90,17 +90,10 @@ $(function () {
             newMessage.textContent = text;
             boxMessage.appendChild(newMessage);
         }
-    } else {
-        console.log('Estas entrando?');
-        
+    } else {        
         // Asignar la función correctamente
         buttonSendMessage.addEventListener('click', function() {
             sendFirstMessage(inputMessage.value);
-        });
-
-        phones.forEach(element => {
-            console.log('Entro aqui');
-            console.log(element);
         });
 
         inputMessage.addEventListener('keydown', function(e) {
@@ -111,23 +104,42 @@ $(function () {
     }
 });
 
-function sendFirstMessage(message) {
-    phones.forEach(phoneNumber => {
+async function sendFirstMessage(message) {
+    // Convertir el Set a un Array para usar map
+    const fetchPromises = Array.from(phones).map(phoneNumber => {
         const formData = new FormData();
         formData.append('phoneNumber', phoneNumber);
         formData.append('messageContent', message);
 
-        // Realizar el fetch para enviar el FormData
-        fetch('/sendMessage/', {
+        return fetch('/sendMessage/', {
             method: 'POST',
             body: formData
         })
         .then(response => response.json())
         .then(data => {
             console.log('Success:', data);
+            return data;
         })
         .catch((error) => {
             console.error('Error:', error);
+            throw error;
         });
     });
+
+    try {
+        // Esperar a que todos los fetch se completen
+        await Promise.all(fetchPromises);
+        
+        // Agregar un delay de 1 segundo
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Obtener el primer número de teléfono del Set
+        const firstPhone = Array.from(phones)[0];
+
+        if (chat_id == '') {
+            window.location.href = `/chat/${firstPhone}/`;
+        }
+    } catch (error) {
+        console.error('Error en el proceso:', error);
+    }
 }
