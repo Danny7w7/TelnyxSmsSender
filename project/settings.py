@@ -29,8 +29,8 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-CSRF_TRUSTED_ORIGINS = ['https://f787-179-33-189-146.ngrok-free.app']
-ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = ['https://blueai.lapeira.com']
+ALLOWED_HOSTS = ['www.blueai.lapeira.com', 'blueai.lapeira.com']
 
 TELNYX_API_KEY = os.getenv('TELNYX_API_KEY')
 
