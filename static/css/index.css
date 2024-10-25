@@ -93,6 +93,14 @@ main {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     padding: 8px 12px;
 }
+.img-responsive {
+    width: 100%;
+    height: auto;
+    max-width: 600px;
+    max-width: 600px;
+    object-fit: contain;
+    border-radius: 10px;
+}
 
 .button-submit {
     background-color: #2196F3;

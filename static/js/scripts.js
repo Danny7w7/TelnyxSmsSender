@@ -57,10 +57,8 @@ $(function () {
         chatSocket.onmessage = function (data) {
             const datamsj = JSON.parse(data.data);
             var msj = datamsj.message;
-            var username = datamsj.username;
-            var datetime = datamsj.datetime;
-
-            addMessage(msj, 'recieve');
+            var type = datamsj.type
+            addMessage(msj, 'Client', type);
         };
 
         buttonSendMessage.addEventListener('click', sendMessage);
@@ -84,11 +82,24 @@ $(function () {
             }
         }
 
-        function addMessage(text, type) {
-            const newMessage = document.createElement('p');
-            newMessage.classList.add(type);
-            newMessage.textContent = text;
-            boxMessage.appendChild(newMessage);
+        function addMessage(text, type, typemsj) {
+            if (typemsj === 'MMS') {
+                const newMessage = document.createElement('div');
+                newMessage.classList.add(type);
+                
+                const image = document.createElement('img');
+                image.src = text;
+                image.classList.add('img-responsive')
+                image.alt = 'Mensaje multimedia';
+                
+                newMessage.appendChild(image);
+                boxMessage.appendChild(newMessage);
+            } else {
+                const newMessage = document.createElement('p');
+                newMessage.classList.add(type);
+                newMessage.textContent = text;
+                boxMessage.appendChild(newMessage);
+            }
         }
     } else {        
         // Asignar la función correctamente

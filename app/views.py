@@ -1,19 +1,28 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
-
-from .models import *
-from django.http import HttpResponse, JsonResponse
-
-from django.conf import settings
-
-from django.db.models import Q
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.decorators import login_required
-
+# Standard library imports
 import json
+import requests
+
+# Third-party imports
+import telnyx
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+
+# Django imports
+from django.conf import settings
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.core.files.base import ContentFile
+from django.db.models import Q
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render, redirect
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-import telnyx
+# Local application imports
+from .models import *
+
+
 # Create your views here.
 
 # auth
@@ -37,10 +46,6 @@ def login_(request):
 def logout_(request):
     logout(request)
     return redirect(index)
-    
-@login_required(login_url='/login')
-def index(request):
-    return render(request, 'sms/index.html')
 
 @csrf_exempt
 def sendMessage(request):
@@ -60,7 +65,6 @@ def sendMessage(request):
 @require_POST
 def sms(request):
     try:
-        # Parsear el cuerpo JSON de la solicitud
         body = json.loads(request.body)
         
         # Imprimir el cuerpo completo
@@ -73,15 +77,51 @@ def sms(request):
             if body['data'].get('event_type') == 'message.received':
                 client = createOrUpdateClient(int(payload.get('from', {}).get('phone_number')))
                 chat = createOrUpdateChat(client)
-                saveMessageInDb('Client', payload.get('text'), chat)
-        
-        return HttpResponse("Webhook recibido correctamente", status=200)
+                message = saveMessageInDb('Client', payload.get('text'), chat)
+
+                if payload.get('type') == 'MMS':
+                    media = payload.get('media', [])
+                    if media:
+                        media_url = media[0].get('url')
+                        fileUrl = save_image_from_url(message, media_url)
+                        SendMessageWebsocketChannel('MMS', payload, client, fileUrl)
+                else:
+                    SendMessageWebsocketChannel('SMS', payload, client)
+
+            return HttpResponse("Webhook recibido correctamente", status=200)
     except json.JSONDecodeError:
         print("Error al decodificar JSON")
         return HttpResponse("Error en el formato JSON", status=400)
     except Exception as e:
         print(f"Error inesperado: {str(e)}")
         return HttpResponse("Error interno del servidor", status=500)
+
+def SendMessageWebsocketChannel(typeMessage, payload, client, mediaUrl=None):
+    # Enviar mensaje al canal de WebSocket
+    channel_layer = get_channel_layer()
+
+    if typeMessage == 'MMS':
+        async_to_sync(channel_layer.group_send)(
+            f'chat_{client.phone_number}',  # Asegúrate de que este formato coincida con tu room_group_name
+            {
+                'type': typeMessage,
+                'message': mediaUrl,
+                'username': f"Cliente {client.phone_number}",  # O como quieras identificar al cliente
+                'datetime': timezone.localtime(timezone.now()).strftime('%Y-%m-%d %H:%M:%S'),
+                'sender_id': True  # O cualquier identificador único que uses
+            }
+        )
+    else:
+        async_to_sync(channel_layer.group_send)(
+            f'chat_{client.phone_number}',  # Asegúrate de que este formato coincida con tu room_group_name
+            {
+                'type': 'chat_message',
+                'message': payload.get('text'),
+                'username': f"Cliente {client.phone_number}",  # O como quieras identificar al cliente
+                'datetime': timezone.localtime(timezone.now()).strftime('%Y-%m-%d %H:%M:%S'),
+                'sender_id': True  # O cualquier identificador único que uses
+            }
+        )
     
 def saveMessageInDb(inboundOrOutbound, message_content, chat, sender=None):
     message = Messages(
@@ -92,6 +132,7 @@ def saveMessageInDb(inboundOrOutbound, message_content, chat, sender=None):
     if sender:
         message.sender = sender
     message.save()
+    return message
     
 def createOrUpdateChat(client, agent=None):
     try:
@@ -129,14 +170,37 @@ def index(request):
 
 @login_required(login_url='/login')
 def chat(request, phoneNumber):
-    client = Clients.objects.get(phone_number=phoneNumber) 
+    client = Clients.objects.get(phone_number=phoneNumber)
     chat = Chat.objects.get(client=client.id)
-    messages = Messages.objects.filter(chat=chat.id)
+    # Usamos select_related para optimizar las consultas
+    messages = Messages.objects.filter(chat=chat.id).select_related('files')
+    
+    # Creamos una lista para almacenar los mensajes con sus archivos
+    messages_with_files = []
+    for message in messages:
+        message_dict = {
+            'id': message.id,
+            'sender_type': message.sender_type,
+            'sender': message.sender,
+            'message_content': message.message_content,
+            'created_at': message.created_at,
+            'is_read': message.is_read,
+            'file': None
+        }
+        
+        # Intentamos obtener el archivo asociado
+        try:
+            message_dict['file'] = message.files
+        except Files.DoesNotExist:
+            pass
+            
+        messages_with_files.append(message_dict)
+
     clients = Clients.objects.all()
     context = {
-        'client':client,
-        'clients':clients,
-        'messages':messages
+        'client': client,
+        'clients': clients,
+        'messages': messages_with_files
     }
     return render(request, 'sms/index.html', context)
 
@@ -149,3 +213,20 @@ def chat_messages(request, phone_number):
         'sender_type': msg.sender_type,
         'timestamp': msg.created_at.isoformat()
     } for msg in messages], safe=False)
+
+def save_image_from_url(message, url):
+    try:        
+        # Descargar la imagen
+        response = requests.get(url)
+        response.raise_for_status()
+        
+        filename = url.split('/')[-1]
+
+        file = Files()
+        file.message = message
+        file.file.save(filename, ContentFile(response.content), save=True)
+
+        return file.file.url
+        
+    except Exception as e:
+        print(f'Error {e}')

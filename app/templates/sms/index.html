@@ -28,15 +28,12 @@
 
         <main>
             <div class="sidebar bg-medium-blue">
-                <div class="text-center">
-                    <img class="mt-3" src="{% static 'images/logo_typeBanner.jpg' %}" alt="logo" width="270">
-                </div>
                 <div class="mb-2 mt-2 px-2">
                     <input type="text" class="form-control" name="" id="" aria-describedby="helpId" placeholder="Search"/>
                 </div>
                 <div class="message-container ms-2 me-2 mb-2">
                     {% for client in clients %}
-                    <a href="{% url 'chat' client.phone_number %}" style="text-decoration: none;">
+                    <a href="{% url 'chat' client.phone_number %}#Findeestavaina" style="text-decoration: none;">
                         <div class="message-item">
                             <div class="avatar">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -45,7 +42,7 @@
                                 </svg>
                             </div>
                             <div class="message-content">
-                                <div class="user-id">17863034781</div>
+                                <div class="user-id">{{client.phone_number}}</div>
                                 <div class="message-text">Message</div>
                             </div>
                         </div>
@@ -69,10 +66,15 @@
                         </div>
                     </div>
                     {% else %}
-                    {% for message in messages %}
-                    <p class="{{message.sender_type}}">{{message.message_content}}</p>
-                    {% endfor %}
+                        {% for message in messages %}
+                            {% if message.file %}
+                            <p class="{{message.sender_type}}"><img class="img-responsive" src="{{ message.file.file.url }}" alt=""></p>
+                            {% else %}
+                            <p class="{{message.sender_type}}">{{message.message_content}}</p>
+                            {% endif %}
+                        {% endfor %}
                     {% endif %}
+                    <p id="Findeestavaina"></p>
                 </div>
                 <div class="main-footer p-3">
                     <div class="input-group">

@@ -45,11 +45,12 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "app",
-    "channels"
+    "channels",
+    "storages"
 ]
 
 #Configuration to use own user model
-AUTH_USER_MODEL = 'app.Users' 
+AUTH_USER_MODEL = 'app.Users'
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -82,7 +83,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "project.wsgi.application"
 
-ASGI_APPLICATION = 'project.asgi.application'  
+ASGI_APPLICATION = 'project.asgi.application'
 
 CHANNEL_LAYERS = {
     "default": {
@@ -97,14 +98,26 @@ CHANNEL_LAYERS = {
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': os.getenv('DB_NAME'),
+#         'USER': 'root',
+#         'PASSWORD': '',
+#         'HOST': os.getenv('DB_HOST'),
+#         'PORT': os.getenv('DB_PORT'),
+#         'OPTIONS': {'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"},
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME'),
+        'NAME': 'message_app',
         'USER': 'root',
         'PASSWORD': '',
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
         'OPTIONS': {'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"},
     }
 }
@@ -158,10 +171,16 @@ if DEBUG:
 else:
   STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_AUTO_CREATE_BUCKET = True
+AWS_S3_FILE_OVERWRITE = False
+
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME')

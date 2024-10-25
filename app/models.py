@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from storages.backends.s3boto3 import S3Boto3Storage
 
 # Create your models here.
 
@@ -38,3 +39,10 @@ class Messages(models.Model):
     message_content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
+
+class Files(models.Model):
+    file = models.FileField(
+        upload_to='files',
+        storage=S3Boto3Storage()
+    )
+    message = models.OneToOneField(Messages, on_delete=models.CASCADE)
