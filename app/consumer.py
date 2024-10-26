@@ -1,9 +1,12 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
-from django.utils import timezone
+import logging
+
+logger = logging.getLogger('django')
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        logger.debug('Conecto')
         self.room_name = self.scope['url_route']['kwargs']['chat_id']
         self.room_group_name = f'chat_{self.room_name}'
         # Join room group
@@ -15,7 +18,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
-        # Leave room group
+        logger.debug('Leave room group')
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name

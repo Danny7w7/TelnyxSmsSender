@@ -18,12 +18,15 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+import logging
 
 # Local application imports
 from .models import *
 
 
 # Create your views here.
+
+logger = logging.getLogger('django')
 
 # auth
 def login_(request):
@@ -64,6 +67,7 @@ def sendMessage(request):
 @csrf_exempt
 @require_POST
 def sms(request):
+    logger.debug('UwU:LLego el post bby')
     try:
         body = json.loads(request.body)
         
@@ -90,16 +94,16 @@ def sms(request):
 
             return HttpResponse("Webhook recibido correctamente", status=200)
     except json.JSONDecodeError:
-        print("Error al decodificar JSON")
+        logger.debug("UwU:Error al decodificar JSON")
         return HttpResponse("Error en el formato JSON", status=400)
     except Exception as e:
-        print(f"Error inesperado: {str(e)}")
+        logger.debug(f"UwU:Error inesperado: {str(e)}")
         return HttpResponse("Error interno del servidor", status=500)
 
 def SendMessageWebsocketChannel(typeMessage, payload, client, mediaUrl=None):
     # Enviar mensaje al canal de WebSocket
     channel_layer = get_channel_layer()
-
+    logger.debug('UwU:Intento enviar el mensaje al websocket')
     if typeMessage == 'MMS':
         async_to_sync(channel_layer.group_send)(
             f'chat_{client.phone_number}',  # Asegúrate de que este formato coincida con tu room_group_name
@@ -122,6 +126,8 @@ def SendMessageWebsocketChannel(typeMessage, payload, client, mediaUrl=None):
                 'sender_id': True  # O cualquier identificador único que uses
             }
         )
+        
+    logger.debug('UwU:No fallo en el intento jaja XD')
     
 def saveMessageInDb(inboundOrOutbound, message_content, chat, sender=None):
     message = Messages(
@@ -165,6 +171,8 @@ def createOrUpdateClient(phoneNumber, name=None):
 
 @login_required(login_url='/login')
 def index(request):
+    logger.debug('UwU:REGUETON')
+
     clients = Clients.objects.all()
     return render(request, 'sms/index.html', {'clients':clients})
 
