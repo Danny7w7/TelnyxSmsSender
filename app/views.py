@@ -104,6 +104,10 @@ def SendMessageWebsocketChannel(typeMessage, payload, client, mediaUrl=None):
     # Enviar mensaje al canal de WebSocket
     channel_layer = get_channel_layer()
     logger.debug('UwU:Intento enviar el mensaje al websocket')
+    logger.debug(f"Intentando enviar mensaje - Tipo: {typeMessage}")
+    logger.debug(f"Cliente: {client.phone_number}")
+    logger.debug(f"Payload: {payload}")
+    logger.debug(f"MediaUrl: {mediaUrl}")
     if typeMessage == 'MMS':
         async_to_sync(channel_layer.group_send)(
             f'chat_{client.phone_number}',  # Asegúrate de que este formato coincida con tu room_group_name
