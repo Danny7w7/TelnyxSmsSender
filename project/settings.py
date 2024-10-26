@@ -30,7 +30,8 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 DEBUG = True
 
 CSRF_TRUSTED_ORIGINS = ['https://blueai.lapeira.com']
-ALLOWED_HOSTS = ['www.blueai.lapeira.com', 'blueai.lapeira.com']
+ALLALLOWED_HOSTS = ['blueai.lapeira.com', 'www.blueai.lapeira.com']
+
 
 TELNYX_API_KEY = os.getenv('TELNYX_API_KEY')
 
