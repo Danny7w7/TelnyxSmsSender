@@ -65,7 +65,7 @@ def sendMessage(request):
     return JsonResponse({'ok':'ok'})
 
 @csrf_exempt
-@require_POST
+# @require_POST
 def sms(request):
     logger.debug('UwU:LLego el post bby')
     try:
