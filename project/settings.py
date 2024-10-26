@@ -179,7 +179,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'django_debug.log'),
+            'filename': '/var/www/TelnyxSmsSender/django_debug.log',  # Ruta absoluta
         },
     },
     'loggers': {
