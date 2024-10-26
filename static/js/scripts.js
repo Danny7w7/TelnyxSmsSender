@@ -38,11 +38,13 @@ phoneInput.addEventListener('blur', () => {
 // Hasta aqui llega el script del input multiple de los numeros
 
 $(function () {
-    var url = 'ws://' + window.location.host + '/ws/chat/' + chat_id + '/';
+    const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+    const url = protocol + window.location.host + '/ws/chat/' + chat_id + '/';
     
     const buttonSendMessage = document.getElementById('sendMessage');
     const inputMessage = document.getElementById('messageContent');
     const boxMessage = document.getElementById('boxMessage');
+    
     if (chat_id != '') {
         var chatSocket = new WebSocket(url);
 
