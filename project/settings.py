@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-CSRF_TRUSTED_ORIGINS = ['https://blueai.lapeira.com']
+CSRF_TRUSTED_ORIGINS = ['https://blueai.lapeira.com', 'https://www.blueai.lapeira.com']
 ALLOWED_HOSTS = ['blueai.lapeira.com', 'www.blueai.lapeira.com']
 
 
