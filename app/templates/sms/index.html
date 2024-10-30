@@ -27,13 +27,13 @@
         </header>
 
         <main>
-            <div class="sidebar bg-medium-blue">
+            <div class="sidebar col-3 bg-medium-blue">
                 <div class="mb-2 mt-2 px-2">
                     <input type="text" class="form-control" name="" id="" aria-describedby="helpId" placeholder="Search"/>
                 </div>
                 <div class="message-container ms-2 me-2 mb-2">
                     {% for client in clients %}
-                    <a href="{% url 'chat' client.phone_number %}#Findeestavaina" style="text-decoration: none;">
+                    <a href="{% url 'chat' client.phone_number %}#end" style="text-decoration: none;">
                         <div class="message-item">
                             <div class="avatar">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -50,12 +50,13 @@
                     {% endfor %}
                 </div>
             </div>
-            <div class="main-content very-light-blue">
+            <div class="main-content col very-light-blue">
                 <div class="main-header p-3">
-                    <div class="phone-input-container mb-3">
+                    <div class="phone-input-container">
                         <div id="phoneList"></div>
-                        <input type="text" id="phoneInput" class="very-light-blue">
+                        <input type="text" id="phoneInput" class="very-light-blue" {% if not client %} placeholder='Ej: 17863034781'{% endif %}>
                     </div>
+                    <small class="mb-3">Agrega el telefono aqui:</small>
                 </div>
                 <div class="divmain" id="boxMessage">
                     {% if not client %}
@@ -74,7 +75,7 @@
                             {% endif %}
                         {% endfor %}
                     {% endif %}
-                    <p id="Findeestavaina"></p>
+                    <p id="end"></p>
                 </div>
                 <div class="main-footer p-3">
                     <div class="input-group">
