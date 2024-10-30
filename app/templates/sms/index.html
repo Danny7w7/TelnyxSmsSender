@@ -32,8 +32,8 @@
                     <input type="text" class="form-control" name="" id="" aria-describedby="helpId" placeholder="Search"/>
                 </div>
                 <div class="message-container ms-2 me-2 mb-2">
-                    {% for client in clients %}
-                    <a href="{% url 'chat' client.phone_number %}#end" style="text-decoration: none;">
+                    {% for chat in chats %}
+                    <a href="{% url 'chat' chat.client.phone_number %}#end" style="text-decoration: none;">
                         <div class="message-item">
                             <div class="avatar">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -42,7 +42,7 @@
                                 </svg>
                             </div>
                             <div class="message-content">
-                                <div class="user-id">{{client.phone_number}}</div>
+                                <div class="user-id">{{ chat.client.phone_number }}</div>
                                 <div class="message-text">Message</div>
                             </div>
                         </div>

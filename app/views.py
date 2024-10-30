@@ -175,10 +175,8 @@ def createOrUpdateClient(phoneNumber, name=None):
 
 @login_required(login_url='/login')
 def index(request):
-    logger.debug('UwU:REGUETON')
-
-    clients = Clients.objects.all()
-    return render(request, 'sms/index.html', {'clients':clients})
+    chats = Chat.objects.select_related('client').filter(agent_id=request.user.id)
+    return render(request, 'sms/index.html', {'chats':chats})
 
 @login_required(login_url='/login')
 def chat(request, phoneNumber):
@@ -208,10 +206,10 @@ def chat(request, phoneNumber):
             
         messages_with_files.append(message_dict)
 
-    clients = Clients.objects.all()
+    chats = Chat.objects.select_related('client').filter(agent_id=request.user.id)
     context = {
         'client': client,
-        'clients': clients,
+        'chats': chats,
         'messages': messages_with_files
     }
     return render(request, 'sms/index.html', context)
