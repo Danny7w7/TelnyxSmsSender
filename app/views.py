@@ -168,7 +168,8 @@ def createOrUpdateClient(phoneNumber, name=None):
             client.save()
     except Clients.DoesNotExist:
         client = Clients(
-            phone_number=phoneNumber
+            phone_number=phoneNumber,
+            name=name
         )
         client.save()
     return client
@@ -176,10 +177,22 @@ def createOrUpdateClient(phoneNumber, name=None):
 @login_required(login_url='/login')
 def index(request):
     chats = Chat.objects.select_related('client').filter(agent_id=request.user.id)
-    return render(request, 'sms/index.html', {'chats':chats})
+    if request.method == 'POST':
+        phoneNumber = request.POST.get('phoneNumber')
+        name = request.POST.get('name', None)
+        client = createOrUpdateClient(phoneNumber, name)
+        chat = createOrUpdateChat(client, request.user)
+        return redirect('chat', client.phone_number)
+    return render(request, 'sms/index.html', {'chats': chats})
 
 @login_required(login_url='/login')
 def chat(request, phoneNumber):
+    if request.method == 'POST':
+        phoneNumber = request.POST.get('phoneNumber')
+        name = request.POST.get('name', None)
+        client = createOrUpdateClient(phoneNumber, name)
+        chat = createOrUpdateChat(client, request.user)
+        return redirect('chat', client.phone_number)
     client = Clients.objects.get(phone_number=phoneNumber)
     chat = Chat.objects.get(client=client.id)
     # Usamos select_related para optimizar las consultas
@@ -212,7 +225,7 @@ def chat(request, phoneNumber):
         'chats': chats,
         'messages': messages_with_files
     }
-    return render(request, 'sms/index.html', context)
+    return render(request, 'sms/chat.html', context)
 
 @login_required(login_url='/login')
 def chat_messages(request, phone_number):
@@ -240,3 +253,5 @@ def save_image_from_url(message, url):
         
     except Exception as e:
         print(f'Error {e}')
+
+# Admin

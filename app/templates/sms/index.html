@@ -1,134 +1,286 @@
 {% load static %}
 <!doctype html>
-<html lang="en">
-    <head>
-        <title>SMS Blue</title>
-        <meta charset="utf-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+<html lang="en" class="dark-theme">
 
-        <link rel="icon" href="https://bluestreammarketing.com.co/wp-content/uploads/2022/12/favicon-150x150.png" sizes="32x32">
 
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous"/>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<!-- Mirrored from codervent.com/syndron/demo/vertical/app-chat-box.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 29 Jul 2023 03:55:08 GMT -->
+<head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!--favicon-->
+	<link rel="icon" href="https://bluestreammarketing.com.co/wp-content/uploads/2022/12/favicon-150x150.png" sizes="32x32">
+	<!--plugins-->
+	<link href="{% static 'assets/plugins/simplebar/css/simplebar.css' %}" rel="stylesheet" />
+	<link href="{% static "assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" %}" rel="stylesheet" />
+	<link href="{% static "assets/plugins/metismenu/css/metisMenu.min.css" %}" rel="stylesheet" />
+	<!-- loader-->
+	<link href="{% static "assets/css/pace.min.css" %}" rel="stylesheet" />
+	<script src="{% static "assets/js/pace.min.js" %}"></script>
+	<!-- Bootstrap CSS -->
+	<link href="{% static "assets/css/bootstrap.min.css" %}" rel="stylesheet">
+	<link href="{% static "assets/css/bootstrap-extended.css" %}" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&amp;display=swap" rel="stylesheet">
+	<link href="{% static "assets/css/app.css" %}" rel="stylesheet">
+	<link href="{% static "assets/css/icons.css" %}" rel="stylesheet">
+	<!-- Theme Style CSS -->
+	<link rel="stylesheet" href="{% static "assets/css/dark-theme.css" %}" />
+	<link rel="stylesheet" href="{% static "assets/css/semi-dark.css" %}" />
+	<link rel="stylesheet" href="{% static "assets/css/header-colors.css" %}" />
+	<title>Syndron - Bootstrap 5 Admin Dashboard Template</title>
+</head>
 
-        <link rel="stylesheet" href="{% static 'css/index.css' %}">
-        <script>
-            // Añade esta variable global para almacenar el socket
-            let chatSocket = null;
-        </script>
-    </head>
-    <body>
-        <header class="container-fluid">
-            <div class="row">
-                <div class="col-3 bg-medium-blue">
-                    <a class="btn" href="{% url 'index' %}">
-                        <span class="material-symbols-outlined">
-                            add_notes
-                        </span>
-                    </a>
-                </div>
-                <div class="col very-light-blue">
-                    <div class="row d-flex flex-row-reverse">
-                        <div class="col-1 mt-2">
-                            <a href="{% url 'logout' %}" style="text-decoration: none;">
-                                <span class="material-symbols-outlined">
-                                    logout
-                                </span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
+<body>
+	<!--wrapper-->
+	<div class="wrapper">
+		<!--sidebar wrapper -->
+		<div class="sidebar-wrapper" data-simplebar="true">
+			<div class="sidebar-header">
+				<div>
+					<img src="https://bluestreammarketing.com.co/wp-content/uploads/2022/12/favicon-150x150.png" class="logo-icon" alt="logo icon">
+				</div>
+				<div>
+					<h4 class="logo-text">SMS Blue</h4>
+				</div>
+				<div class="toggle-icon ms-auto"><i class='bx bx-arrow-back'></i>
+				</div>
+			 </div>
+			<!--navigation-->
+			<ul class="metismenu" id="menu">
+				<li>
+					<a href="javascript:;" class="has-arrow">
+						<div class="parent-icon"><i class='bx bx-home-alt'></i>
+						</div>
+						<div class="menu-title">Dashboard</div>
+					</a>
+					<ul>
+						<li> <a href="#"><i class='bx bx-radio-circle'></i>eCommerce</a>
+						</li>
+						<li> <a href="#"><i class='bx bx-radio-circle'></i>Analytics</a>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<a href="javascript:;" class="has-arrow">
+						<div class="parent-icon"><i class="bx bx-category"></i>
+						</div>
+						<div class="menu-title">Application</div>
+					</a>
+					<ul>
+						<li> <a href="app-chat-box.html"><i class='bx bx-radio-circle'></i>SMS Blue</a>
+						</li>
+					</ul>
+				</li>
+			</ul>
+			<!--end navigation-->
+		</div>
+		<!--end sidebar wrapper -->
+		<!--start header -->
+		<header>
+			<div class="topbar d-flex align-items-center">
+				<nav class="navbar navbar-expand gap-3">
+					<div class="top-menu ms-auto">
+						<ul class="navbar-nav align-items-center gap-1">
+							<li class="nav-item dark-mode d-none d-sm-flex">
+								<a class="nav-link dark-mode-icon" href="javascript:;"><i class='bx bx-moon'></i>
+								</a>
+							</li>
+							<li class="nav-item dropdown dropdown-app">
+								<div class="dropdown-menu dropdown-menu-end p-0">
+									<div class="app-container p-2 my-2">
+									  <div class="row gx-0 gy-2 row-cols-3 justify-content-center p-2">	</div>				
+									</div>
+								</div>
+							</li>
+							<li class="nav-item dropdown dropdown-large">								
+								<div class="dropdown-menu dropdown-menu-end">
+									<div class="header-notifications-list">	</div>									
+								</div>
+							</li>
+							<li class="nav-item dropdown dropdown-large">
+								<div class="dropdown-menu dropdown-menu-end">
+									<div class="header-message-list">	</div>
+								</div>
+							</li>
+						</ul>
+					</div>
+					<div class="user-box dropdown px-3">
+						<a class="d-flex align-items-center nav-link dropdown-toggle gap-3 dropdown-toggle-nocaret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							<i class="bx bx-user fs-5"></i>
+							<div class="user-info">
+								<p class="user-name mb-0">{{request.user}}</p>
+								<p class="designattion mb-0">Full Stack Developer</p>
+							</div>
+						</a>
+						<ul class="dropdown-menu dropdown-menu-end">
+							<li><a class="dropdown-item d-flex align-items-center" href="javascript:;"><i class="bx bx-home-circle fs-5"></i><span>Dashboard</span></a>
+							</li>
+							<li>
+								<div class="dropdown-divider mb-0"></div>
+							</li>
+							<li><a class="dropdown-item d-flex align-items-center" href="javascript:;"><i class="bx bx-log-out-circle"></i><span>Logout</span></a>
+							</li>
+						</ul>
+					</div>
+				</nav>
+			</div>
+		</header>
+		<!--end header -->
+		<!--start page wrapper -->
+		<div class="page-wrapper">
+			<div class="page-content">
+				<div class="chat-wrapper">
+					<div class="chat-sidebar">
+						<div class="chat-sidebar-header">
+							<div class="d-flex align-items-center">
+								<div class="chat-user-online">
+									<img src="{% static "assets/images/avatars/avatar-1.png" %}" width="45" height="45" class="rounded-circle" alt="" />
+								</div>
+								<div class="flex-grow-1 ms-2">
+									<p class="mb-0">{{request.user.first_name}} {{request.user.last_name}}</p>
+								</div>
+								<div class="dropdown">
+									<div class="cursor-pointer font-24 dropdown-toggle dropdown-toggle-nocaret" data-bs-toggle="dropdown"><i class='bx bx-dots-horizontal-rounded'></i>
+									</div>
+									<div class="dropdown-menu dropdown-menu-end">
+										<a class="dropdown-item" href="javascript:;">Sign Out</a>
+									</div>
+								</div>
+							</div>
+							<div class="mb-3"></div>
+							<div class="input-group input-group-sm"> <span class="input-group-text bg-transparent"><i class='bx bx-search'></i></span>
+								<input type="text" class="form-control" placeholder="People & messages">
+							</div>
+							<div class="chat-tab-menu mt-3">
+								<ul class="nav nav-pills nav-justified">
+									<li class="nav-item">
+										<a class="nav-link active" data-bs-toggle="pill" href="javascript:;">
+											<div class="font-24"><i class='bx bx-conversation'></i>
+											</div>
+											<div><small>Chats</small>
+											</div>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a class="nav-link" data-bs-toggle="pill" href="javascript:;">
+											<div class="font-24"><i class='bx bxs-contact'></i>
+											</div>
+											<div><small>Contacts</small>
+											</div>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a class="nav-link" data-bs-toggle="pill" href="javascript:;">
+											<div class="font-24"><i class='bx bx-bell'></i>
+											</div>
+											<div><small>Notifications</small>
+											</div>
+										</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div class="chat-sidebar-content">
+							<div class="tab-content" id="pills-tabContent">
+								<div class="tab-pane fade show active" id="pills-Chats">
+									<div class="p-3">
+										<div class="meeting-button d-flex justify-content-between">
+											<div class="dropdown"> <a href="#" class="btn btn-white btn-sm radius-30 dropdown-toggle dropdown-toggle-nocaret" data-bs-toggle="dropdown" data-display="static"><i class='bx bxs-edit me-2'></i>New Chat<i class='bx bxs-chevron-down ms-2'></i></a>
+												<div class="dropdown-menu dropdown-menu-right">
+													<!-- Button trigger #NewChatModal modal -->
+													<button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#NewChatModal">New Chat</button>
+												</div>
+											</div>
+										</div>
+										<div class="dropdown mt-3"> <a href="#" class="text-uppercase text-secondary dropdown-toggle dropdown-toggle-nocaret" data-bs-toggle="dropdown">Recent Chats <i class='bx bxs-chevron-down'></i></a>
+											<div class="dropdown-menu">	
+												<a class="dropdown-item" href="#">Recent Chats</a>
+												<div class="dropdown-divider"></div>	
+												<a class="dropdown-item" href="#">Sort by Time</a>
+												<a class="dropdown-item" href="#">Sort by Unread</a>
+												<div class="dropdown-divider"></div>	
+												<a class="dropdown-item" href="#">Show Favorites</a>
+											</div>
+										</div>
+									</div>
+									<div class="chat-list">
+										<div class="list-group list-group-flush">
+											{% for chat in chats %}
+											<!-- foreach block Django -->
+											<a href="{% url 'chat' chat.client.phone_number %}" class="list-group-item">
+												<div class="d-flex">
+													<i class="bx bx-user fs-5"></i>
+													<div class="flex-grow-1 ms-2">
+														<h6 class="mb-0 chat-title">{{ chat.client.phone_number }}</h6>
+														<p class="mb-0 chat-msg">You just got LITT up, Mike.</p>
+													</div>
+													<div class="chat-time">9:51 AM</div>
+												</div>
+											</a>
+											<!-- End foreach block Django -->
+											{% endfor %}
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					{% block chatBlock %}
+					{% endblock %}
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Modal -->
+	<div class="modal fade" id="NewChatModal" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<form id="newChat" action="" method="post">
+					{% csrf_token %}
+					<div class="modal-header">
+						<h5 class="modal-title">Create New Chat</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<label for="name" class="form-label">Name</label>
+						<input type="text" class="form-control mb-3" name="name" id="name" placeholder="Enter the client's name"/>
+						<label for="phoneNumber" class="form-label">Phone Number</label>
+						<input type="number" class="form-control" name="phoneNumber" id="phoneNumber" placeholder="Example: 17863034781" required/>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-primary">Create Chat</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 
-        <main>
-            <div class="sidebar col-3 bg-medium-blue">
-                <div class="mb-2 mt-2 px-2">
-                    <input type="text" class="form-control" name="" id="" aria-describedby="helpId" placeholder="Search"/>
-                </div>
-                <div class="message-container ms-2 me-2 mb-2">
-                    {% for chat in chats %}
-                    <a href="{% url 'chat' chat.client.phone_number %}#end" style="text-decoration: none;">
-                        <div class="message-item">
-                            <div class="avatar">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                                    <circle cx="12" cy="7" r="4"/>
-                                </svg>
-                            </div>
-                            <div class="message-content">
-                                <div class="user-id">{{ chat.client.phone_number }}</div>
-                                <div class="message-text">Message</div>
-                            </div>
-                        </div>
-                    </a>
-                    {% endfor %}
-                </div>
-            </div>
-            <div class="main-content col very-light-blue">
-                <div class="main-header p-3">
-                    <div class="phone-input-container">
-                        <div id="phoneList"></div>
-                        <input type="text" id="phoneInput" class="very-light-blue" {% if not client %} placeholder='Ej: 17863034781'{% endif %}>
-                    </div>
-                    <small class="mb-3">Agrega el telefono aqui:</small>
-                </div>
-                <div class="divmain" id="boxMessage">
-                    {% if not client %}
-                    <div class="d-flex flex-grow-1 justify-content-center align-items-center">
-                        <div class="text-center">
-                            <i class="fas fa-comments fa-5x mb-4 text-primary"></i>
-                            <h5 class="mb-3">Selecciona o crea un chat para iniciar una conversación</h5>
-                        </div>
-                    </div>
-                    {% else %}
-                        {% for message in messages %}
-                            {% if message.file %}
-                            <p class="{{message.sender_type}}"><img class="img-responsive" src="{{ message.file.file.url }}" alt=""></p>
-                            {% else %}
-                            <p class="{{message.sender_type}}">{{message.message_content}}</p>
-                            {% endif %}
-                        {% endfor %}
-                    {% endif %}
-                    <p id="end"></p>
-                </div>
-                <div class="main-footer p-3">
-                    <div class="input-group">
-                        <input type="text" class="form-control message" aria-describedby="helpId" id="messageContent"/>
-                        <div class="input-group-append text-center">
-                            <button class="btn btn-primary button-submit ms-3 mt-1" id="sendMessage">Send</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-        
-        <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="offcanvasExampleLabel">Offcanvas</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body">
-                <div>
-                    En desarrollo...
-                </div>
-            </div>
-        </div>
+	<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+	<script>
+		var user_id = '{{request.user.id}}'
+		var chat_id = '{{ client.phone_number }}'
+	</script>
+	<script src="{% static 'js/scripts.js' %}"></script>
 
-        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
-       
-        <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-        <script>
-            var user_id = '{{request.user.id}}'
-            var chat_id = '{{ client.phone_number }}'
-        </script>
-        <script src="{% static 'js/scripts.js' %}"></script>
-        <script>
-            addPhone(parseInt('{{client.phone_number}}'))
-            console.log(phones)
-        </script>
-        <!-- Añade el ID del usuario actual para usarlo en el JavaScript -->
-    
-    </body>
+	<!-- Bootstrap JS -->
+	<script src="{% static "assets/js/bootstrap.bundle.min.js" %}"></script>
+
+	<!--plugins-->
+	<script src="{% static "assets/js/jquery.min.js" %}"></script>
+	<script src="{% static "assets/plugins/simplebar/js/simplebar.min.js" %}"></script>
+	<script src="{% static "assets/plugins/metismenu/js/metisMenu.min.js" %}"></script>
+	<script src="{% static "assets/plugins/perfect-scrollbar/js/perfect-scrollbar.js" %}"></script>
+	<script>
+		new PerfectScrollbar('.chat-list');
+		new PerfectScrollbar('.chat-content');
+	</script>
+	
+	<!--app JS-->
+	<script src="{% static "assets/js/app.js" %}"></script>
+
+</body>
+
+
+<!-- Mirrored from codervent.com/syndron/demo/vertical/app-chat-box.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 29 Jul 2023 03:55:10 GMT -->
 </html>
