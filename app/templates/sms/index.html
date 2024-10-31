@@ -21,11 +21,23 @@
         <header class="container-fluid">
             <div class="row">
                 <div class="col-3 bg-medium-blue">
-                    <a class="btn" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample">
-                        <span class="material-symbols-outlined">menu</span>
+                    <a class="btn" href="{% url 'index' %}">
+                        <span class="material-symbols-outlined">
+                            add_notes
+                        </span>
                     </a>
                 </div>
-                <div class="col very-light-blue"></div>
+                <div class="col very-light-blue">
+                    <div class="row d-flex flex-row-reverse">
+                        <div class="col-1 mt-2">
+                            <a href="{% url 'logout' %}" style="text-decoration: none;">
+                                <span class="material-symbols-outlined">
+                                    logout
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </header>
 
