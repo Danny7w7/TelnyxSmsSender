@@ -149,11 +149,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = 'America/Bogota'  # Zona horaria de Colombia
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = True  # Asegúrate de que esto esté en True
 
 
 # Static files (CSS, JavaScript, Images)

@@ -211,10 +211,19 @@
 												<div class="d-flex">
 													<i class="bx bx-user fs-5"></i>
 													<div class="flex-grow-1 ms-2">
-														<h6 class="mb-0 chat-title">{{ chat.client.name|default:chat.client.phone_number }}</h6>
-														<p class="mb-0 chat-msg">You just got LITT up, Mike.</p>
+														<h6 class="mb-0 chat-title {% if chat.is_message_unread %}fw-bold{% endif %}">{{ chat.client.name|default:chat.client.phone_number }}</h6>
+														<p class="mb-0 chat-msg {% if chat.is_message_unread %}fw-bold{% endif %}">
+															{{ chat.last_message_content }}
+															{% if chat.has_attachment %}
+																<i class="bx bx-paperclip"></i>
+															{% endif %}
+														</p>{% if chat.is_message_unread %}<span class="alert-count">{{ chat.unread_messages }}</span>{% endif %}
 													</div>
-													<div class="chat-time">9:51 AM</div>
+													{% if chat.last_message_time %}
+													<div class="chat-time">
+														{{ chat.last_message_time|date:"g:i A" }}
+													</div>
+													{% endif %}
 												</div>
 											</a>
 											<!-- End foreach block Django -->

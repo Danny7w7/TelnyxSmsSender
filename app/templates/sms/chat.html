@@ -23,7 +23,7 @@
                         <circle cx="12" cy="7" r="4"></circle>
                     </svg>
                     <div class="flex-grow-1 ms-2">
-                        <p class="mb-0 chat-time">{% if client.name %}{{client.name}}{% else %}{{client.phone_number}}{%endif%}, 2:35 PM</p>
+                        <p class="mb-0 chat-time">{% if client.name %}{{client.name}}{% else %}{{client.phone_number}}{%endif%}, {{message.created_at|date:"g:i A"}}</p>
                         {% if message.file %}
                         <p class="chat-left-msg">
                             <img class="img-responsive" src="{{ message.file.file.url }}" alt="">
@@ -38,7 +38,7 @@
             <div class="chat-content-rightside">
                 <div class="d-flex ms-auto">
                     <div class="flex-grow-1 me-2">
-                        <p class="mb-0 chat-time text-end">you, 2:37 PM</p>
+                        <p class="mb-0 chat-time text-end">you, {{message.created_at|date:"g:i A"}}</p>
                         {% if message.file %}
                         <p class="chat-left-msg">
                             <img class="img-responsive" src="{{ message.file.file.url }}" alt="">

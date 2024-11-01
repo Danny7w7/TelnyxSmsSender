@@ -141,6 +141,10 @@ def saveMessageInDb(inboundOrOutbound, message_content, chat, sender=None):
     )
     if sender:
         message.sender = sender
+        message.is_read = True
+    else:
+        message.is_read = False
+
     message.save()
     return message
     
@@ -177,6 +181,8 @@ def createOrUpdateClient(phoneNumber, name=None):
 @login_required(login_url='/login')
 def index(request):
     chats = Chat.objects.select_related('client').filter(agent_id=request.user.id)
+    chats = get_last_message_for_chats(chats)
+
     if request.method == 'POST':
         phoneNumber = request.POST.get('phoneNumber')
         name = request.POST.get('name', None)
@@ -193,6 +199,7 @@ def chat(request, phoneNumber):
         client = createOrUpdateClient(phoneNumber, name)
         chat = createOrUpdateChat(client, request.user)
         return redirect('chat', client.phone_number)
+    
     client = Clients.objects.get(phone_number=phoneNumber)
     chat = Chat.objects.get(client=client.id)
     # Usamos select_related para optimizar las consultas
@@ -211,6 +218,9 @@ def chat(request, phoneNumber):
             'file': None
         }
         
+        message.is_read = True
+        message.save()
+
         # Intentamos obtener el archivo asociado
         try:
             message_dict['file'] = message.files
@@ -220,6 +230,7 @@ def chat(request, phoneNumber):
         messages_with_files.append(message_dict)
 
     chats = Chat.objects.select_related('client').filter(agent_id=request.user.id)
+    chats = get_last_message_for_chats(chats)
     context = {
         'client': client,
         'chats': chats,
@@ -254,4 +265,36 @@ def save_image_from_url(message, url):
     except Exception as e:
         print(f'Error {e}')
 
+def get_last_message_for_chats(chats):
+    """
+    Función que enriquece los chats con información del último mensaje
+    y cuenta los mensajes no leídos
+    """
+    for chat in chats:
+        # Obtener el último mensaje del chat
+        last_message = Messages.objects.filter(chat=chat).order_by('-created_at').first()
+        
+        # Contar mensajes no leídos
+        unread_count = Messages.objects.filter(
+            chat=chat,
+            is_read=False,
+            sender_type='Client'  # Solo mensajes del cliente
+        ).count()
+        
+        # Si existe último mensaje, agregar atributos personalizados
+        if last_message:
+            chat.last_message_content = last_message.message_content
+            chat.last_message_time = last_message.created_at
+            chat.has_attachment = hasattr(last_message, 'files')
+            chat.is_message_unread = not last_message.is_read
+        else:
+            chat.last_message_content = "No hay mensajes"
+            chat.last_message_time = None
+            chat.has_attachment = False
+            chat.is_message_unread = False
+        
+        # Agregar contador de mensajes no leídos
+        chat.unread_messages = unread_count
+    
+    return chats
 # Admin
