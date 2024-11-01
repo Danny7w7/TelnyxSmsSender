@@ -285,8 +285,8 @@ def get_last_message_for_chats(chats):
         if last_message:
             # Truncar el mensaje a 27 caracteres
             content = last_message.message_content
-            if len(content) > 25:
-                content = content[:25] + "..."
+            if len(content) > 24:
+                content = content[:24] + "..."
 
             chat.last_message_content = content
             chat.last_message_time = last_message.created_at
