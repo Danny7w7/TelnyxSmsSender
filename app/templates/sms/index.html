@@ -27,7 +27,7 @@
 	<link rel="stylesheet" href="{% static "assets/css/dark-theme.css" %}" />
 	<link rel="stylesheet" href="{% static "assets/css/semi-dark.css" %}" />
 	<link rel="stylesheet" href="{% static "assets/css/header-colors.css" %}" />
-	<title>Syndron - Bootstrap 5 Admin Dashboard Template</title>
+	<title>SMS Blue</title>
 </head>
 
 <body>
@@ -67,7 +67,7 @@
 						<div class="menu-title">Application</div>
 					</a>
 					<ul>
-						<li> <a href="app-chat-box.html"><i class='bx bx-radio-circle'></i>SMS Blue</a>
+						<li> <a href="{% url 'index' %}"><i class='bx bx-radio-circle'></i>SMS Blue</a>
 						</li>
 					</ul>
 				</li>
@@ -109,7 +109,7 @@
 							<i class="bx bx-user fs-5"></i>
 							<div class="user-info">
 								<p class="user-name mb-0">{{request.user}}</p>
-								<p class="designattion mb-0">Full Stack Developer</p>
+								<p class="designattion mb-0">{{request.user.role}}</p>
 							</div>
 						</a>
 						<ul class="dropdown-menu dropdown-menu-end">
@@ -118,7 +118,7 @@
 							<li>
 								<div class="dropdown-divider mb-0"></div>
 							</li>
-							<li><a class="dropdown-item d-flex align-items-center" href="javascript:;"><i class="bx bx-log-out-circle"></i><span>Logout</span></a>
+							<li><a class="dropdown-item d-flex align-items-center" href="{% url 'logout' %}"><i class="bx bx-log-out-circle"></i><span>Logout</span></a>
 							</li>
 						</ul>
 					</div>
@@ -143,7 +143,7 @@
 									<div class="cursor-pointer font-24 dropdown-toggle dropdown-toggle-nocaret" data-bs-toggle="dropdown"><i class='bx bx-dots-horizontal-rounded'></i>
 									</div>
 									<div class="dropdown-menu dropdown-menu-end">
-										<a class="dropdown-item" href="javascript:;">Sign Out</a>
+										<a class="dropdown-item" href="{% url 'logout' %}">Sign Out</a>
 									</div>
 								</div>
 							</div>
@@ -211,7 +211,7 @@
 												<div class="d-flex">
 													<i class="bx bx-user fs-5"></i>
 													<div class="flex-grow-1 ms-2">
-														<h6 class="mb-0 chat-title">{{ chat.client.phone_number }}</h6>
+														<h6 class="mb-0 chat-title">{{ chat.client.name|default:chat.client.phone_number }}</h6>
 														<p class="mb-0 chat-msg">You just got LITT up, Mike.</p>
 													</div>
 													<div class="chat-time">9:51 AM</div>
