@@ -283,7 +283,12 @@ def get_last_message_for_chats(chats):
         
         # Si existe último mensaje, agregar atributos personalizados
         if last_message:
-            chat.last_message_content = last_message.message_content
+            # Truncar el mensaje a 27 caracteres
+            content = last_message.message_content
+            if len(content) > 25:
+                content = content[:25] + "..."
+
+            chat.last_message_content = content
             chat.last_message_time = last_message.created_at
             chat.has_attachment = hasattr(last_message, 'files')
             chat.is_message_unread = not last_message.is_read
