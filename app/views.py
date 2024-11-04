@@ -180,7 +180,10 @@ def createOrUpdateClient(phoneNumber, name=None):
 
 @login_required(login_url='/login')
 def index(request):
-    chats = Chat.objects.select_related('client').filter(agent_id=request.user.id)
+    if request.user.is_superuser:
+        chats = Chat.objects.select_related('client').all()
+    else:
+        chats = Chat.objects.select_related('client').filter(agent_id=request.user.id)
     chats = get_last_message_for_chats(chats)
 
     if request.method == 'POST':
