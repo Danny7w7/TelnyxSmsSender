@@ -232,7 +232,10 @@ def chat(request, phoneNumber):
             
         messages_with_files.append(message_dict)
 
-    chats = Chat.objects.select_related('client').filter(agent_id=request.user.id)
+    if request.user.is_superuser:
+        chats = Chat.objects.select_related('client').all()
+    else:
+        chats = Chat.objects.select_related('client').filter(agent_id=request.user.id)
     chats = get_last_message_for_chats(chats)
     context = {
         'client': client,
