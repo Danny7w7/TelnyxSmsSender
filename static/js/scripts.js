@@ -213,3 +213,31 @@ function validatePhoneNumber(phoneNumber) {
     // En cualquier otro caso, el número no es válido
     return false;
 }
+
+const listChats = document.getElementById('listChats');
+const anchorsArray = Array.from(listChats.querySelectorAll('a'));
+
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('input', function() {
+    anchorsArray.forEach(anchor => {
+        if (isSubsequence(searchInput.value.toLowerCase(), anchor.id.toLowerCase())){
+            anchor.style.display = 'block'; 
+        }else{
+            anchor.style.display = 'none';
+        }
+    });
+});
+
+function isSubsequence(sub, str) {
+    let subIndex = 0;
+
+    for (let i = 0; i < str.length; i++) {
+        if (str[i] === sub[subIndex]) {
+            subIndex++;
+        }
+        if (subIndex === sub.length) {
+            return true;
+        }
+    }
+    return false;
+}

@@ -149,7 +149,7 @@
 							</div>
 							<div class="mb-3"></div>
 							<div class="input-group input-group-sm"> <span class="input-group-text bg-transparent"><i class='bx bx-search'></i></span>
-								<input type="text" class="form-control" placeholder="People & messages">
+								<input id='searchInput' type="text" class="form-control" placeholder="People & messages">
 							</div>
 							<div class="chat-tab-menu mt-3">
 								<ul class="nav nav-pills nav-justified">
@@ -204,10 +204,9 @@
 										</div>
 									</div>
 									<div class="chat-list">
-										<div class="list-group list-group-flush">
+										<div class="list-group list-group-flush" id='listChats'>
 											{% for chat in chats %}
-											<!-- foreach block Django -->
-											<a href="{% url 'chat' chat.client.phone_number %}" class="list-group-item">
+											<a id='chat{{ chat.client.name|default:chat.client.phone_number }}' href="{% url 'chat' chat.client.phone_number %}" class="list-group-item">
 												<div class="d-flex">
 													<i class="bx bx-user fs-5"></i>
 													<div class="flex-grow-1 ms-2">
@@ -226,7 +225,6 @@
 													{% endif %}
 												</div>
 											</a>
-											<!-- End foreach block Django -->
 											{% endfor %}
 										</div>
 									</div>
