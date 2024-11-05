@@ -242,7 +242,8 @@
 							<h4 class="mb-1 font-weight-bold">{% if client.name %}{{client.name}} - {{client.phone_number}}{% else %}Unknown - {{client.phone_number}}{%endif%}</h4>
 							<div class="list-inline d-sm-flex mb-0 d-none"> <a href="javascript:;" class="list-inline-item d-flex align-items-center text-secondary"><small class='bx bxs-circle me-1 chart-online'></small>Active Now</a>
 								<a href="javascript:;" class="list-inline-item d-flex align-items-center text-secondary">|</a>
-								<a href="javascript:;" class="list-inline-item d-flex align-items-center text-secondary"><i class='bx bx-search me-1'></i>Find</a>
+								<!-- Button trigger #NewChatModal modal -->
+								<a type="button" class="list-inline-item d-flex align-items-center text-secondary" data-bs-toggle="modal" data-bs-target="#EditChatModal"><i class='bx bx-edit me-1'></i>Edit Chat</a></a>
 							</div>
 							{% endif %}
 						</div>
@@ -270,7 +271,7 @@
 			</div>
 		</div>
 	</div>
-	<!-- Modal -->
+	<!-- Modal New Chat -->
 	<div class="modal fade" id="NewChatModal" tabindex="-1" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered">
 			<div class="modal-content">
@@ -289,6 +290,30 @@
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
 						<button type="submit" class="btn btn-primary">Create Chat</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Modal Edit Chat -->
+	<div class="modal fade" id="EditChatModal" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<form id="newChat" action="" method="post">
+					{% csrf_token %}
+					<div class="modal-header">
+						<h5 class="modal-title">Edit Chat</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<label for="name" class="form-label">Name</label>
+						<input type="text" class="form-control mb-3" name="name" id="name" placeholder="Enter the client's name" value='{{client.name}}' Required/>
+						<input type="hidden" name="phoneNumber" value='{{client.phone_number}}'/>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-primary">Edit Chat</button>
 					</div>
 				</form>
 			</div>
