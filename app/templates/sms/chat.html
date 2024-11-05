@@ -29,7 +29,7 @@
                             <img class="img-responsive" src="{{ message.file.file.url }}" alt="">
                         </p>
                         {% else %}
-                        <p class="chat-left-msg">{{message.message_content}}</p>
+                        <p class="chat-left-msg">{{message.message_content|linebreaksbr}}</p>
                         {% endif %}
                     </div>
                 </div>
@@ -44,7 +44,7 @@
                             <img class="img-responsive" src="{{ message.file.file.url }}" alt="">
                         </p>
                         {% else %}
-                        <p class="chat-right-msg">{{message.message_content}}</p>
+                        <p class="chat-right-msg">{{message.message_content|linebreaksbr}}</p>
                         {% endif %}
                     </div>
                 </div>
@@ -55,7 +55,7 @@
 <div class="chat-footer d-flex align-items-center">
     <div class="flex-grow-1 pe-2">
         <div class="input-group">
-            <input id="messageContent" type="text" class="form-control" placeholder="Type a message">
+            <textarea id="messageContent" class="form-control" placeholder="Type a message"></textarea>
         </div>
     </div>
     <div class="chat-footer-menu" id="sendMessage">

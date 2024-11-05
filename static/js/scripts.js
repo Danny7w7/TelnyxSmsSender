@@ -23,11 +23,15 @@ $(function () {
             var type = datamsj.type
             addMessage(msj, 'Client', type);
         };
-
+        inputMessage.style.height = '40px'
         buttonSendMessage.addEventListener('click', sendMessage);
         inputMessage.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                this.style.height = '40px'; // Ajusta la altura a 2 líneas
                 sendMessage();
+                e.preventDefault(); // Evita el comportamiento predeterminado del enter
+            } else if (e.key === 'Enter' && e.shiftKey) {
+                this.style.height = '60px'; // Ajusta la altura a 2 líneas
             }
         });
     }
@@ -98,7 +102,7 @@ $(function () {
                 image.alt = 'Mensaje multimedia';
                 messageParagraph.appendChild(image);
             } else {
-                messageParagraph.textContent = text;
+                messageParagraph.innerHTML = text.replace(/\n/g, '<br>');
             }
         
             // Assemble the components
@@ -138,7 +142,7 @@ $(function () {
                 messageParagraph.appendChild(image);
             } else {
                 messageParagraph.classList.add('chat-right-msg');
-                messageParagraph.textContent = text;
+                messageParagraph.innerHTML = text.replace(/\n/g, '<br>');
             }
     
             // Assemble the components
