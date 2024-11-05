@@ -146,6 +146,10 @@ def saveMessageInDb(inboundOrOutbound, message_content, chat, sender=None):
         message.is_read = False
 
     message.save()
+    
+    #Upload last message
+    chat.last_message = timezone.localtime(timezone.now())
+    chat.save()
     return message
     
 def createOrUpdateChat(client, agent=None):
@@ -181,9 +185,9 @@ def createOrUpdateClient(phoneNumber, name=None):
 @login_required(login_url='/login')
 def index(request):
     if request.user.is_superuser:
-        chats = Chat.objects.select_related('client').all()
+        chats = Chat.objects.select_related('client').all().order_by('-last_message')
     else:
-        chats = Chat.objects.select_related('client').filter(agent_id=request.user.id)
+        chats = Chat.objects.select_related('client').filter(agent_id=request.user.id).order_by('-last_message')
     chats = get_last_message_for_chats(chats)
 
     if request.method == 'POST':
@@ -233,9 +237,9 @@ def chat(request, phoneNumber):
         messages_with_files.append(message_dict)
 
     if request.user.is_superuser:
-        chats = Chat.objects.select_related('client').all()
+        chats = Chat.objects.select_related('client').all().order_by('-last_message')
     else:
-        chats = Chat.objects.select_related('client').filter(agent_id=request.user.id)
+        chats = Chat.objects.select_related('client').filter(agent_id=request.user.id).order_by('-last_message')
     chats = get_last_message_for_chats(chats)
     context = {
         'client': client,

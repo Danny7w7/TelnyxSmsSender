@@ -27,6 +27,7 @@ class Chat(models.Model):
     client = models.ForeignKey(Clients, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    last_message = models.DateTimeField(null=True)
 
 class Messages(models.Model):
     SENDER_TYPE_CHOICES = (
