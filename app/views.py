@@ -182,6 +182,12 @@ def createOrUpdateClient(phoneNumber, name=None):
         client.save()
     return client
 
+def deleteClient(request ,id):
+    if request.user.is_superuser:
+        client = Clients.objects.get(id=id)
+        client.delete()
+    return redirect(index)
+
 @login_required(login_url='/login')
 def index(request):
     if request.user.is_superuser:

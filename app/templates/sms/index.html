@@ -244,6 +244,10 @@
 								<a href="javascript:;" class="list-inline-item d-flex align-items-center text-secondary">|</a>
 								<!-- Button trigger #NewChatModal modal -->
 								<a type="button" class="list-inline-item d-flex align-items-center text-secondary" data-bs-toggle="modal" data-bs-target="#EditChatModal"><i class='bx bx-edit me-1'></i>Edit Chat</a></a>
+								{% if request.user.is_superuser %}
+								<a href="javascript:;" class="list-inline-item d-flex align-items-center text-secondary">|</a>
+								<a href="{% url "deleteClient" client.id %}" class="list-inline-item d-flex align-items-center text-secondary"><i class='bx bx-trash me-1'></i>Delete Chat</a></a>
+								{% endif %}
 							</div>
 							{% endif %}
 						</div>

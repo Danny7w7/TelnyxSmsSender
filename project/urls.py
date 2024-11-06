@@ -27,5 +27,6 @@ urlpatterns = [
     path('', include('app.urls'), name='index'),
     path('chat/<phoneNumber>/', views.chat, name='chat'),
     path('sendMessage/', views.sendMessage, name='sendMessage'),
-    path('sms/', views.sms, name='sms')
+    path('sms/', views.sms, name='sms'),
+    path('deleteChat/<id>/', views.deleteClient, name='deleteClient')
 ]
