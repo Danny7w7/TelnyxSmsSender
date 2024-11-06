@@ -22,12 +22,18 @@ class Clients(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return f'{self.name} - {self.phone_number}'
+
 class Chat(models.Model):
     agent = models.ForeignKey(Users, on_delete=models.CASCADE)
     client = models.ForeignKey(Clients, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     last_message = models.DateTimeField(null=True)
+    
+    def __str__(self):
+        return f'{self.agent.username} - {self.client.phone_number}'
 
 class Messages(models.Model):
     SENDER_TYPE_CHOICES = (
