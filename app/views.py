@@ -54,7 +54,7 @@ def logout_(request):
 def sendMessage(request):
     telnyx.api_key = settings.TELNYX_API_KEY
     telnyx.Message.create(
-    from_="+17866931008", # Your Telnyx number
+    from_=f"+{request.user.assigned_phone.phone_number}", # Your Telnyx number
     to=f'+{request.POST['phoneNumber']}',
     text= request.POST['messageContent']
     )

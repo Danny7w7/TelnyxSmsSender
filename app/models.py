@@ -4,6 +4,9 @@ from storages.backends.s3boto3 import S3Boto3Storage
 
 # Create your models here.
 
+class Numbers(models.Model):
+    phone_number = models.BigIntegerField()
+
 #Lo declaro por si en un momento se llega a modificar la tabla User.
 class Users(AbstractUser):
     ROLES_CHOICES = (
@@ -11,10 +14,20 @@ class Users(AbstractUser):
         ('S', 'Supervisor'),
         ('Admin', 'Admin'),
     )
+    assigned_phone = models.OneToOneField(Numbers, on_delete=models.CASCADE, null=True)
     role = models.CharField(max_length=20, choices=ROLES_CHOICES)
 
     def __str__(self):
         return self.username
+    
+    def formatted_phone_number(self):
+        # Validar que haya un número asignado
+        if self.assigned_phone and self.assigned_phone.phone_number:
+            # Convertir el número en un string y aplicar el formato deseado
+            phone_str = str(self.assigned_phone.phone_number)
+            formatted = f"+{phone_str[0]} ({phone_str[1:4]}) {phone_str[4:7]} {phone_str[7:]}"
+            return formatted
+        return None
     
 class Clients(models.Model):
     name = models.CharField(max_length=50, null=True)
