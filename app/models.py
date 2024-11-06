@@ -14,7 +14,7 @@ class Users(AbstractUser):
         ('S', 'Supervisor'),
         ('Admin', 'Admin'),
     )
-    assigned_phone = models.OneToOneField(Numbers, on_delete=models.CASCADE, null=True)
+    assigned_phone = models.ForeignKey(Numbers, on_delete=models.SET_NULL, null=True, blank=True)
     role = models.CharField(max_length=20, choices=ROLES_CHOICES)
 
     def __str__(self):
