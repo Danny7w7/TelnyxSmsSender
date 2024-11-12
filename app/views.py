@@ -280,7 +280,7 @@ def sendCreateSecretKey(request, id):
     telnyx.Message.create(
     from_=f"+17869848405", # Your Telnyx number
     to=f'+{client.phone_number}',
-    text= generate_temporary_url(request, client, 'create')
+    text= generate_temporary_url(request, client)
     )
 
     saveMessageInDb('Agent', 'Secret key creation link sent', chat, chat.agent)
