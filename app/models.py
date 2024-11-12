@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
 from storages.backends.s3boto3 import S3Boto3Storage
 
 # Create your models here.
@@ -21,9 +22,7 @@ class Users(AbstractUser):
         return self.username
     
     def formatted_phone_number(self):
-        # Validar que haya un número asignado
         if self.assigned_phone and self.assigned_phone.phone_number:
-            # Convertir el número en un string y aplicar el formato deseado
             phone_str = str(self.assigned_phone.phone_number)
             formatted = f"+{phone_str[0]} ({phone_str[1:4]}) {phone_str[4:7]} {phone_str[7:]}"
             return formatted
@@ -37,6 +36,22 @@ class Clients(models.Model):
 
     def __str__(self):
         return f'{self.name} - {self.phone_number}'
+
+class SecretKey(models.Model):
+    client = models.OneToOneField(Clients, on_delete=models.CASCADE)
+    secretKey = models.CharField(max_length=200)
+
+class TemporaryURL(models.Model):
+    client = models.ForeignKey(Clients, on_delete=models.CASCADE)
+    token = models.TextField()  # Guardar el token firmado
+    expiration = models.DateTimeField()
+    is_active = models.BooleanField(default=True)  # Para invalidar manualmente
+
+    def is_expired(self):
+        return timezone.now() > self.expiration
+
+    def __str__(self):
+        return f"Temporary URL for {self.client.name} (Active: {self.is_active})"
 
 class Chat(models.Model):
     agent = models.ForeignKey(Users, on_delete=models.CASCADE)

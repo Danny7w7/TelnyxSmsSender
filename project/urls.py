@@ -28,5 +28,9 @@ urlpatterns = [
     path('chat/<phoneNumber>/', views.chat, name='chat'),
     path('sendMessage/', views.sendMessage, name='sendMessage'),
     path('sms/', views.sms, name='sms'),
-    path('deleteChat/<id>/', views.deleteClient, name='deleteClient')
+    path('deleteChat/<id>/', views.deleteClient, name='deleteClient'),
+    path('createSecretKey/<id>/', views.sendCreateSecretKey, name='sendCreateSecretKey'),
+    path('secret-key/', views.createSecretKey, name='url_temporal'),
+
+    path('sendSecretKey/<client_id>/', views.sendSecretKey, name='sendSecretKey')
 ]

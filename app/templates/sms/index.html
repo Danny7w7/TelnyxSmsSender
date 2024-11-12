@@ -249,6 +249,12 @@
 								<a href="javascript:;" class="list-inline-item d-flex align-items-center text-secondary">|</a>
 								<a href="{% url "deleteClient" client.id %}" class="list-inline-item d-flex align-items-center text-secondary"><i class='bx bx-trash me-1'></i>Delete Chat</a></a>
 								{% endif %}
+								<a href="javascript:;" class="list-inline-item d-flex align-items-center text-secondary">|</a>
+								{% if secretKey %}
+								<a href="{% url "sendSecretKey" client.id %}" class="list-inline-item d-flex align-items-center text-secondary"><i class='bx bx-key me-1'></i>Send SecretKey</a></a>
+								{% else %}
+								<a href="{% url "sendCreateSecretKey" client.id %}" class="list-inline-item d-flex align-items-center text-secondary"><i class='bx bx-key me-1'></i>Create SecretKey</a></a>
+								{% endif %}
 							</div>
 							{% endif %}
 						</div>

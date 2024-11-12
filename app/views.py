@@ -1,4 +1,5 @@
 # Standard library imports
+from datetime import timedelta
 import json
 import requests
 
@@ -12,12 +13,14 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
+from django.core.signing import Signer, BadSignature
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.contrib.auth.hashers import make_password
 import logging
 
 # Local application imports
@@ -65,7 +68,7 @@ def sendMessage(request):
     return JsonResponse({'ok':'ok'})
 
 @csrf_exempt
-# @require_POST
+@require_POST
 def sms(request):
     logger.debug('UwU:LLego el post bby')
     try:
@@ -215,6 +218,7 @@ def chat(request, phoneNumber):
     
     client = Clients.objects.get(phone_number=phoneNumber)
     chat = Chat.objects.get(client=client.id)
+    secretKey = SecretKey.objects.filter(client=client).filter()
     # Usamos select_related para optimizar las consultas
     messages = Messages.objects.filter(chat=chat.id).select_related('files')
     
@@ -250,9 +254,69 @@ def chat(request, phoneNumber):
     context = {
         'client': client,
         'chats': chats,
-        'messages': messages_with_files
+        'messages': messages_with_files,
+        'secretKey':secretKey
     }
     return render(request, 'sms/chat.html', context)
+
+def sendSecretKey(request, client_id):
+    client = Clients.objects.get(id=client_id)
+    secretKey = SecretKey.objects.get(client=client)
+    chat = Chat.objects.get(client=client)
+
+    telnyx.api_key = settings.TELNYX_API_KEY
+    telnyx.Message.create(
+    from_=f"+17869848405", # Your Telnyx number
+    to=f'+{client.phone_number}',
+    text=generate_temporary_url(request, client, secretKey.secretKey)
+    )
+    saveMessageInDb('Agent', 'Link to secret key sent', chat, chat.agent)
+    return redirect('chat', client.phone_number)
+
+def sendCreateSecretKey(request, id):
+    client = Clients.objects.get(id=id)
+    chat = Chat.objects.get(client=client)
+    telnyx.api_key = settings.TELNYX_API_KEY
+    telnyx.Message.create(
+    from_=f"+17869848405", # Your Telnyx number
+    to=f'+{client.phone_number}',
+    text= generate_temporary_url(request, client, 'create')
+    )
+
+    saveMessageInDb('Agent', 'Secret key creation link sent', chat, chat.agent)
+    return redirect('chat', client.phone_number)
+
+def createSecretKey(request):
+    result = validate_temporary_url(request)
+    is_valid, note, *client = result
+
+    #Aqui valido si es valido el token, si no que retorne el mensaje de error
+    if not is_valid:
+        return HttpResponse(note)
+
+    if request.method == 'POST':
+        secret_key_request = request.POST['secret_key']
+
+        # Verifica si existe un SecretKey para el cliente
+        secret_key = SecretKey.objects.filter(client=client[0].id).first()
+        if not secret_key:
+            secret_key = SecretKey()
+            secret_key.client = client[0]
+        secret_key.secretKey = secret_key_request
+        secret_key.save()
+
+        invalidate_temporary_url(request, note) #Aqui el note equivale al Token
+        return render(request, 'secret_key/create_secret_key.html', {'secret_key':secret_key_request})
+    
+    token = request.GET.get('token')
+
+    signer = Signer()   
+    signed_data = force_str(urlsafe_base64_decode(token))
+    data = json.loads(signer.unsign(signed_data))
+
+    secret_key = data.get('secret_key')
+
+    return render(request, 'secret_key/create_secret_key.html', {'secret_keyG':secret_key})
 
 @login_required(login_url='/login')
 def chat_messages(request, phone_number):
@@ -318,4 +382,80 @@ def get_last_message_for_chats(chats):
         chat.unread_messages = unread_count
     
     return chats
+
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+
+# Vista para generar el enlace temporal
+def generate_temporary_url(request, client, secret_key=None):
+    signer = Signer()
+
+    # Define una fecha de expiración (por ejemplo, 1 hora desde ahora)
+    expiration_time = timezone.now() + timedelta(minutes=15)
+
+    # Crear el token con la fecha de expiración usando JSON
+    data = {
+        'client_id': client.id,
+        'phone_number': client.phone_number,
+        'expiration': expiration_time.isoformat(),
+    }
+    if secret_key:
+        data['secret_key'] = secret_key
+    signed_data = signer.sign(json.dumps(data))  # Firmar los datos serializados
+    token = urlsafe_base64_encode(force_bytes(signed_data))  # Codificar seguro para URL
+
+    # Guardar la URL temporal en la base de datos
+    TemporaryURL.objects.create(
+        client=client,
+        token=token,
+        expiration=expiration_time
+    )
+    if secret_key:
+        temporary_url = f"{request.build_absolute_uri('/secret-key/')}?token={token}"
+    else:
+        temporary_url = f"{request.build_absolute_uri('/secret-key/')}?token={token}"
+
+    # Crear la URL temporal
+
+    return temporary_url
+
+# Vista para verificar y procesar la URL temporal
+def validate_temporary_url(request):
+    token = request.POST.get('token') or request.GET.get('token')
+
+    if not token:
+        return False, 'Token no proporcionado.'
+
+    signer = Signer()
+    
+    try:
+        signed_data = force_str(urlsafe_base64_decode(token))
+        data = json.loads(signer.unsign(signed_data))
+
+        client_id = data.get('client_id')
+        expiration_time = timezone.datetime.fromisoformat(data['expiration'])
+        # Verificar si el token está activo y no ha expirado
+        temp_url = TemporaryURL.objects.get(token=token, client_id=client_id)
+
+        if not temp_url.is_active:
+            return False, 'El enlace ha sido desactivado.'
+
+        if temp_url.is_expired():
+            return False, 'El enlace ha expirado.'
+
+        # Procesar si la URL es válida
+        client = temp_url.client
+        
+        return True, token, client
+    
+    except (BadSignature, ValueError, KeyError):
+        return False, 'Token inválido o alterado.'
+        
+def invalidate_temporary_url(request, token):
+    try:
+        temp_url = TemporaryURL.objects.get(token=token)
+        temp_url.is_active = False
+        temp_url.save()
+    except TemporaryURL.DoesNotExist:
+        print("Esta URL temporal no existe chamo")
 # Admin
