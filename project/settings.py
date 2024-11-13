@@ -177,16 +177,21 @@ LOGGING = {
     'disable_existing_loggers': False,
     'handlers': {
         'file': {
-            'level': 'DEBUG',
+            'level': 'INFO',  # Cambia DEBUG a INFO para reducir el nivel de detalle
             'class': 'logging.FileHandler',
-            'filename': '/var/www/TelnyxSmsSender/django_debug.log',  # Ruta absoluta
+            'filename': '/var/www/TelnyxSmsSender/django_debug.log',
         },
     },
     'loggers': {
         'django': {
             'handlers': ['file'],
-            'level': 'DEBUG',
+            'level': 'INFO',  # Cambia DEBUG a INFO o WARNING
             'propagate': True,
+        },
+        'django.db.backends': {
+            'handlers': ['file'],
+            'level': 'WARNING',  # Evita registrar todas las consultas SQL
+            'propagate': False,
         },
     },
 }
