@@ -391,7 +391,7 @@ def generate_temporary_url(request, client, secret_key=None):
     signer = Signer()
 
     # Define una fecha de expiración (por ejemplo, 1 hora desde ahora)
-    expiration_time = timezone.now() + timedelta(minutes=15)
+    expiration_time = timezone.now() + timedelta(minutes=10)
 
     # Crear el token con la fecha de expiración usando JSON
     data = {
@@ -424,7 +424,7 @@ def validate_temporary_url(request):
     token = request.POST.get('token') or request.GET.get('token')
 
     if not token:
-        return False, 'Token no proporcionado.'
+        return False, 'Token no proporcionado. Not found token.'
 
     signer = Signer()
     
@@ -438,10 +438,10 @@ def validate_temporary_url(request):
         temp_url = TemporaryURL.objects.get(token=token, client_id=client_id)
 
         if not temp_url.is_active:
-            return False, 'El enlace ha sido desactivado.'
+            return False, 'Enlace desactivado. Link deactivated.'
 
         if temp_url.is_expired():
-            return False, 'El enlace ha expirado.'
+            return False, 'Enlace ha expirado. Link expired.'
 
         # Procesar si la URL es válida
         client = temp_url.client
@@ -449,7 +449,7 @@ def validate_temporary_url(request):
         return True, token, client
     
     except (BadSignature, ValueError, KeyError):
-        return False, 'Token inválido o alterado.'
+        return False, 'Token inválido o alterado. Invalid token.'
         
 def invalidate_temporary_url(request, token):
     try:
