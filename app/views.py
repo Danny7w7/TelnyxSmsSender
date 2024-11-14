@@ -62,7 +62,10 @@ def sendMessage(request):
     text= request.POST['messageContent']
     )
     client = createOrUpdateClient(request.POST['phoneNumber'])
-    chat = createOrUpdateChat(client, request.user)
+    if request.user.role == 'Customer':
+        chat = createOrUpdateChat(client)
+    else:
+        chat = createOrUpdateChat(client, request.user)
     saveMessageInDb('Agent', request.POST['messageContent'], chat, request.user)
     
     return JsonResponse({'ok':'ok'})
@@ -270,7 +273,7 @@ def sendSecretKey(request, client_id):
     to=f'+{client.phone_number}',
     text=generate_temporary_url(request, client, secretKey.secretKey)
     )
-    saveMessageInDb('Agent', 'Link to secret key sent', chat, chat.agent)
+    saveMessageInDb('Agent', 'Link to secret key sent', chat, request.user)
     return redirect('chat', client.phone_number)
 
 def sendCreateSecretKey(request, id):
@@ -283,7 +286,7 @@ def sendCreateSecretKey(request, id):
     text= generate_temporary_url(request, client)
     )
 
-    saveMessageInDb('Agent', 'Secret key creation link sent', chat, chat.agent)
+    saveMessageInDb('Agent', 'Secret key creation link sent', chat, request.user)
     return redirect('chat', client.phone_number)
 
 def createSecretKey(request):
