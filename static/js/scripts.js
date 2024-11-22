@@ -167,7 +167,17 @@ async function sendFirstMessage(message) {
     })
     .then(response => response.json())
     .then(data => {
+        if (data.message == 'No money'){
+            Swal.fire({
+                title:  "<p style='color: red;'>Insufficient funding</p>",
+                text: "Recharge your account, in case of error contact support.",
+                icon: "error"
+              }).then(() => {
+                window.location.reload();
+            });
+        }
         console.log('Success:', data);
+
         return data;
     })
     .catch((error) => {

@@ -1,10 +1,13 @@
 # Standard library imports
-from datetime import timedelta
+from datetime import datetime, timedelta
+from decimal import Decimal
 import json
 import requests
+import smtplib
 
 # Third-party imports
 import telnyx
+import stripe
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
@@ -14,10 +17,12 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
 from django.core.signing import Signer, BadSignature
-from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.utils import timezone
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.utils.timezone import timedelta
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.contrib.auth.hashers import make_password
@@ -25,6 +30,7 @@ import logging
 
 # Local application imports
 from .models import *
+from .utils.email_sender import *
 
 
 # Create your views here.
@@ -39,15 +45,23 @@ def login_(request):
         username = request.POST['username']
         password = request.POST['password']
 
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect(index)
-        else:
-            msg = 'Datos incorrectos, intente de nuevo'
-            return render(request, 'auth/login.html', {'msg':msg})
-    else:
-        return render(request, 'auth/login.html')
+        try:
+            user = Users.objects.get(username=username)
+            if not user.is_active:
+                error_message = "Your account is disabled. Please contact support."
+            else:
+                user = authenticate(request, username=username, password=password)
+                if user is not None:
+                    login(request, user)
+                    return redirect('index')
+                else:
+                    error_message = "Invalid password."
+        except Users.DoesNotExist:
+            error_message = "User does not exist."
+        
+        return render(request, 'auth/login.html', {'error_message': error_message})
+    
+    return render(request, 'auth/login.html')
     
 def logout_(request):
     logout(request)
@@ -55,6 +69,8 @@ def logout_(request):
 
 @csrf_exempt
 def sendMessage(request):
+    if comprobate_company(request.user.role):
+        return JsonResponse({'message':'No money'})
     telnyx.api_key = settings.TELNYX_API_KEY
     telnyx.Message.create(
     from_=f"+{request.user.assigned_phone.phone_number}", # Your Telnyx number
@@ -68,12 +84,11 @@ def sendMessage(request):
         chat = createOrUpdateChat(client, request.user)
     saveMessageInDb('Agent', request.POST['messageContent'], chat, request.user)
     
-    return JsonResponse({'ok':'ok'})
+    return JsonResponse({'message':'ok'})
 
 @csrf_exempt
 @require_POST
 def sms(request):
-    logger.debug('UwU:LLego el post bby')
     try:
         body = json.loads(request.body)
         
@@ -109,11 +124,11 @@ def sms(request):
 def SendMessageWebsocketChannel(typeMessage, payload, client, mediaUrl=None):
     # Enviar mensaje al canal de WebSocket
     channel_layer = get_channel_layer()
-    logger.debug('UwU:Intento enviar el mensaje al websocket')
-    logger.debug(f"Intentando enviar mensaje - Tipo: {typeMessage}")
-    logger.debug(f"Cliente: {client.phone_number}")
-    logger.debug(f"Payload: {payload}")
-    logger.debug(f"MediaUrl: {mediaUrl}")
+    # logger.debug('UwU:Intento enviar el mensaje al websocket')
+    # logger.debug(f"Intentando enviar mensaje - Tipo: {typeMessage}")
+    # logger.debug(f"Cliente: {client.phone_number}")
+    # logger.debug(f"Payload: {payload}")
+    # logger.debug(f"MediaUrl: {mediaUrl}")
     if typeMessage == 'MMS':
         async_to_sync(channel_layer.group_send)(
             f'chat_{client.phone_number}',  # Asegúrate de que este formato coincida con tu room_group_name
@@ -136,9 +151,7 @@ def SendMessageWebsocketChannel(typeMessage, payload, client, mediaUrl=None):
                 'sender_id': True  # O cualquier identificador único que uses
             }
         )
-        
-    logger.debug('UwU:No fallo en el intento jaja XD')
-    
+          
 def saveMessageInDb(inboundOrOutbound, message_content, chat, sender=None):
     message = Messages(
         sender_type=inboundOrOutbound,
@@ -331,6 +344,83 @@ def chat_messages(request, phone_number):
         'timestamp': msg.created_at.isoformat()
     } for msg in messages], safe=False)
 
+def payment_type(request, type, company_id):
+    if type == 'Thank-You-Page':
+        return render(request, 'email_templates/thank_you_page.html')
+    elif type == 'Payment-Error':
+        context = {
+            'retry_payment_url': create_stripe_checkout_session(company_id)
+        }
+        return render(request, 'email_templates/payment_error.html', context)
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+def create_stripe_checkout_session(company_id):
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            line_items=[
+                {
+                    'price': 'price_1QMwnnHakpVhxYcDvZmMPJdf',
+                    'quantity': 1,
+                },
+            ],
+            mode='payment',
+            success_url=f"{settings.DOMAIN}/payment/Thank-You-Page/{company_id}/",
+            cancel_url=f"{settings.DOMAIN}/payment/Payment-Error/{company_id}/",
+            automatic_tax={'enabled': True},
+            metadata={
+                'company_id': company_id
+            }
+        )
+        return checkout_session.url
+    except stripe.error.StripeError as e:
+        raise Exception(f"Stripe error: {str(e)}")
+    except Exception as e:
+        raise Exception(f"Unexpected error: {str(e)}")
+                                             
+@csrf_exempt
+def stripe_webhook(request):
+    payload = request.body
+    sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+    endpoint_secret = settings.STRIPE_WEBHOOK_SECRET  # Configura esto en tu cuenta de Stripe
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, endpoint_secret
+        )
+    except ValueError as e:
+        # Invalid payload
+        return JsonResponse({'error': 'Invalid payload'}, status=400)
+    except stripe.error.SignatureVerificationError as e:
+        # Invalid signature
+        return JsonResponse({'error': 'Invalid signature'}, status=400)
+
+    # Manejar el evento
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']  # Sesión completada
+        company_id = session['metadata']['company_id']
+        amount = format_number(session['amount_total'])
+
+        company = Companies.objects.get(id=company_id)
+        company.remaining_balance += amount
+        company.save()
+
+        send_email(
+            subject=f"✅ Confirmación de Pago en SMS Blue - {company.company_name}",
+            receiver_email=company.company_email,
+            template_name="email_templates/payment_confirmation",
+            context_data={
+                "Owner_name": company.owner,
+                "company": company.company_name,
+                "payment_amount":amount,
+                "current_balance": f'{company.remaining_balance:.2f}',
+                "payment_date": timezone.now().strftime('%d/%m/%Y %H:%M:%S')
+            }
+        )
+
+        # Aquí puedes actualizar tu base de datos, enviar correos, etc.
+
+    return JsonResponse({'status': 'success'})
+
 def save_image_from_url(message, url):
     try:        
         # Descargar la imagen
@@ -385,9 +475,6 @@ def get_last_message_for_chats(chats):
         chat.unread_messages = unread_count
     
     return chats
-
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
 
 # Vista para generar el enlace temporal
 def generate_temporary_url(request, client, secret_key=None):
@@ -461,4 +548,107 @@ def invalidate_temporary_url(request, token):
         temp_url.save()
     except TemporaryURL.DoesNotExist:
         print("Esta URL temporal no existe chamo")
+
+def comprobate_company(user_role):
+    companies = Companies.objects.all()
+    for company in companies:
+        if company.user_role == user_role:
+            if company.remaining_balance <= 0:
+                disableAllUserCompany(company)
+                return True
+            else:
+                discountRemainingBalance(company)
+                paymend_recording(company)
+                return False
+            break
+
+def discountRemainingBalance(companyObject):
+    companyObject.remaining_balance -= Decimal('0.03')
+    companyObject.save()
+
+def disableAllUserCompany(companyObject):
+    usersCompany = Users.objects.filter(role=companyObject.user_role)
+    send_email(
+        subject=f"Tu cuenta SMS Blue ha sido desactivada por saldo insuficiente",
+        receiver_email=companyObject.company_email,
+        template_name="email_templates/service_cancelled",
+        context_data={
+            "Owner_name": companyObject.owner,
+            "company": companyObject.company_name,
+            "remaining_balance": f'{companyObject.remaining_balance:.2f}',
+            "url_pay": create_stripe_checkout_session(companyObject.id)
+        }
+    )
+
+    for user in usersCompany:
+        user.is_active = 0
+        user.save()
+
+def paymend_recording(company):
+    def format_mail_recording(company):
+        send_email(
+            subject=f"Tu saldo en SMS Blue es de {company.remaining_balance:.2f} USD. No te quedes sin servicio",
+            receiver_email=company.company_email,
+            template_name="email_templates/payment_reminder",
+            context_data={
+                "Owner_name": company.owner,
+                "company": company.company_name,
+                "remaining_balance": f'{company.remaining_balance:.2f}',
+                "url_pay": create_stripe_checkout_session(company.id)
+            }
+        )
+
+    if company.remaining_balance <= 10 and not company.notified_at_10:
+        format_mail_recording(company)
+        company.notified_at_10 = True
+        company.save()
+    
+    if company.remaining_balance <= 5 and not company.notified_at_5:
+        format_mail_recording(company)
+        company.notified_at_5 = True
+        company.save()
+    
+    if company.remaining_balance <= 1 and not company.notified_at_1:
+        format_mail_recording(company)
+        company.notified_at_1 = True
+        company.save()
+
+def format_number(number):
+    return Decimal(number) / Decimal(100)
+
 # Admin
+def admin(request):
+    if not request.user.is_staff:
+        return redirect('index')
+    # Obtener la fecha actual
+    now = datetime.now()
+    seven_days_ago = now - timedelta(days=6)
+
+    # Obtener usuarios con el rol "Better25"
+    better25_users = Users.objects.filter(role="Better25")
+    company = Companies.objects.get(user_role="Better25")
+
+    # Filtrar mensajes de los últimos 7 días y asociados a chats de usuarios "Better25"
+    messages = Messages.objects.filter(
+        chat__agent__in=better25_users,
+        created_at__gte=seven_days_ago
+    )
+
+    # Diccionario para los días de la semana
+    day_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    result = {day_name: 0 for day_name in day_names}
+
+    # Agrupar los mensajes usando el día de la semana
+    for message in messages:
+        message_day = message.created_at.weekday()  # Obtiene el día de la semana (0=Monday, 6=Sunday)
+        day_name = day_names[message_day]
+        result[day_name] += 1
+
+    context = {
+        'day_names':json.dumps(day_names),
+        'messages':json.dumps(result),
+        "url_recharge": create_stripe_checkout_session(company.id),
+        "company":company,
+        "message_count":messages.count()
+    }
+    return render(request, 'admin/admin.html', context)

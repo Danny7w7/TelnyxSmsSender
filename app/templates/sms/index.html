@@ -11,9 +11,12 @@
 	<!--favicon-->
 	<link rel="icon" href="https://bluestreammarketing.com.co/wp-content/uploads/2022/12/favicon-150x150.png" sizes="32x32">
 	<!--plugins-->
+	{% block plugins_css %}
 	<link href="{% static 'assets/plugins/simplebar/css/simplebar.css' %}" rel="stylesheet" />
 	<link href="{% static "assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" %}" rel="stylesheet" />
 	<link href="{% static "assets/plugins/metismenu/css/metisMenu.min.css" %}" rel="stylesheet" />
+	<title>SMS Blue</title>
+	{% endblock %}
 	<!-- loader-->
 	<link href="{% static "assets/css/pace.min.css" %}" rel="stylesheet" />
 	<script src="{% static "assets/js/pace.min.js" %}"></script>
@@ -27,7 +30,6 @@
 	<link rel="stylesheet" href="{% static "assets/css/dark-theme.css" %}" />
 	<link rel="stylesheet" href="{% static "assets/css/semi-dark.css" %}" />
 	<link rel="stylesheet" href="{% static "assets/css/header-colors.css" %}" />
-	<title>SMS Blue</title>
 </head>
 
 <body>
@@ -47,19 +49,19 @@
 			 </div>
 			<!--navigation-->
 			<ul class="metismenu" id="menu">
+				{% if request.user.is_staff %}
 				<li>
 					<a href="javascript:;" class="has-arrow">
 						<div class="parent-icon"><i class='bx bx-home-alt'></i>
 						</div>
-						<div class="menu-title">Dashboard</div>
+						<div class="menu-title">Admin Panel</div>
 					</a>
 					<ul>
-						<li> <a href="#"><i class='bx bx-radio-circle'></i>eCommerce</a>
-						</li>
-						<li> <a href="#"><i class='bx bx-radio-circle'></i>Analytics</a>
+						<li> <a href="{% url 'admin' %}"><i class='bx bx-radio-circle'></i>Dashboard</a>
 						</li>
 					</ul>
 				</li>
+				{% endif %}
 				<li>
 					<a href="javascript:;" class="has-arrow">
 						<div class="parent-icon"><i class="bx bx-category"></i>
@@ -130,6 +132,7 @@
 		<!--end header -->
 		<!--start page wrapper -->
 		<div class="page-wrapper">
+			{% block page_content %}
 			<div class="page-content">
 				<div class="chat-wrapper">
 					<div class="chat-sidebar">
@@ -280,6 +283,7 @@
 					</div>
 				</div>
 			</div>
+			{% endblock %}
 		</div>
 	</div>
 	<!-- Modal New Chat -->
@@ -330,7 +334,7 @@
 			</div>
 		</div>
 	</div>
-
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 	<script>
 		var user_id = '{{request.user.id}}'
@@ -340,7 +344,7 @@
 
 	<!-- Bootstrap JS -->
 	<script src="{% static "assets/js/bootstrap.bundle.min.js" %}"></script>
-
+	{% block plugins_js %}
 	<!--plugins-->
 	<script src="{% static "assets/js/jquery.min.js" %}"></script>
 	<script src="{% static "assets/plugins/simplebar/js/simplebar.min.js" %}"></script>
@@ -350,6 +354,7 @@
 		new PerfectScrollbar('.chat-list');
 		new PerfectScrollbar('.chat-content');
 	</script>
+	{% endblock %}
 	
 	<!--app JS-->
 	<script src="{% static "assets/js/app.js" %}"></script>

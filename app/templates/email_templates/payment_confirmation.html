@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f8;
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        .header-logo {
+            background-color: #28a745;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+            color: white;
+        }
+        .content-section {
+            padding: 30px;
+        }
+        .payment-confirmation {
+            background-color: #d4edda;
+            border-left: 5px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .footer a {
+            color: #0d6efd;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header-logo">
+            <h1>BlueAI</h1>
+        </div>
+        
+        <div class="content-section">
+            <h2 class="text-center mb-4">Confirmación de Pago</h2>
+            
+            <p class="lead">Estimado(a) <strong>{{Owner_name}}</strong>,</p>
+            
+            <p>Nos complace confirmar que hemos recibido su pago para <strong>{{company}}</strong>.</p>
+            
+            <div class="payment-confirmation">
+                <h4 class="mb-3">✅ Pago Exitoso</h4>
+                <p>Monto Pagado: <strong>{{payment_amount}} USD</strong></p>
+                <p>Fecha de Pago: <strong>{{payment_date}}</strong></p>
+                <p>Saldo Actual: <strong>{{current_balance}} USD</strong></p>
+            </div>
+            
+            <p>Gracias por su pago puntual. Su saldo de cuenta ha sido actualizado en consecuencia.</p>
+            
+            <p>Si tiene alguna pregunta o inquietud sobre este pago, no dude en <a href="#">contactar a nuestro equipo de soporte</a>.</p>
+            
+            <p class="mb-0">Saludos cordiales,</p>
+            <p>El Equipo de <strong>IT Bluestream Marketing Colombia</strong></p>
+        </div>
+        
+        <div class="footer">
+            <p>Este es un correo electrónico automático, por favor no responda.</p>
+            <p>© 2024 Bluestream Marketing Colombia. Todos los derechos reservados.</p>
+            <p><a href="#">Política de Privacidad</a> | <a href="#">Términos y Condiciones</a></p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

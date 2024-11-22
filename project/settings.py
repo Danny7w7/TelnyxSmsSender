@@ -209,3 +209,15 @@ AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME')
+
+
+# Configuraciones de email
+SMTP_HOST = os.getenv('SMTP_HOST')  # Ejemplo: mail.lapeira.com
+SMTP_PORT = os.getenv('SMTP_PORT', '587')
+SENDER_EMAIL_ADDRESS = os.getenv('SENDER_EMAIL_ADDRESS')  # no-reply@lapeira.com
+EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
+
+#Stripe
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
+DOMAIN = os.getenv('DOMAIN')
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')

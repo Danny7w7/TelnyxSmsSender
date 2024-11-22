@@ -1,129 +1,185 @@
+{% extends "sms/index.html" %}
 {% load static %}
-<!doctype html>
-<html lang="en">
-    <head>
-        <title>Admin Panel SMS Blue</title>
-        <meta charset="utf-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+{% block plugins_css %}
+<link href="{% static "assets/plugins/vectormap/jquery-jvectormap-2.0.2.css" %}" rel="stylesheet"/>
+<link href="{% static "assets/plugins/simplebar/css/simplebar.css" %}" rel="stylesheet"/>
+<link href="{% static "assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" %}" rel="stylesheet"/>
+<link href="{% static "assets/plugins/metismenu/css/metisMenu.min.css" %}" rel="stylesheet"/>
+<link href="{% static "assets/plugins/highcharts/css/highcharts.css" %}" rel="stylesheet"/>
+<title>Dashboard SMS Blue</title>
 
-        <link rel="icon" href="https://bluestreammarketing.com.co/wp-content/uploads/2022/12/favicon-150x150.png" sizes="32x32">
+<style>
+    .card {
+        border-radius: 12px;
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
 
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous"/>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    }
 
-        <link rel="stylesheet" href="{% static 'css/index.css' %}">
-        <script>
-            // Añade esta variable global para almacenar el socket
-            let chatSocket = null;
-        </script>
-    </head>
-    <body>
-        <header class="container-fluid">
-            <div class="row">
-                <div class="col-3 bg-medium-blue">
-                </div>
-                <div class="col very-light-blue">
-                    <div class="row d-flex flex-row-reverse">
-                        <div class="col-1 mt-2">
-                            <a href="{% url 'logout' %}" style="text-decoration: none;">
-                                <span class="material-symbols-outlined">
-                                    logout
-                                </span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
+    .card-title {
+        font-weight: bold;
+    }
 
-        <main>
-            <div class="sidebar col-3 bg-medium-blue">
-                <div class="message-container ms-2 me-2 mb-2">
-                    <a href="" style="text-decoration: none;">
-                        <div class="message-item">
-                            <div class="avatar">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                                    <circle cx="12" cy="7" r="4"/>
-                                </svg>
-                            </div>
-                            <div class="message-content">
-                                <div class="user-id">Manage users</div>
-                            </div>
-                        </div>
-                    </a>
-                    <a href="" style="text-decoration: none;">
-                        <div class="message-item">
-                            <div class="avatar">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                                    <circle cx="12" cy="7" r="4"/>
-                                </svg>
-                            </div>
-                            <div class="message-content">
-                                <div class="user-id">Manage users</div>
-                            </div>
-                        </div>
-                    </a>
-                    <a href="" style="text-decoration: none;">
-                        <div class="message-item">
-                            <div class="avatar">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                                    <circle cx="12" cy="7" r="4"/>
-                                </svg>
-                            </div>
-                            <div class="message-content">
-                                <div class="user-id">Manage users</div>
-                            </div>
-                        </div>
-                    </a>
-                    <a href="" style="text-decoration: none;">
-                        <div class="message-item">
-                            <div class="avatar">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                                    <circle cx="12" cy="7" r="4"/>
-                                </svg>
-                            </div>
-                            <div class="message-content">
-                                <div class="user-id">Manage users</div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-            <div class="main-content col very-light-blue">
+    .list-group-item {
+        border: none;
+        padding: 8px 0;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
 
-            </div>
-        </main>
-        
-        <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="offcanvasExampleLabel">Offcanvas</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body">
-                <div>
-                    En desarrollo...
+{% block page_content %}
+    <div class="card shadow-none bg-transparent">
+        <div class="card-header py-3">
+            <div class="row align-items-center">
+                <div class="col-md-3">
+                    <h4 class="mb-3 mb-md-0">Dashboard</h4>
                 </div>
             </div>
         </div>
-
-        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
-       
-        <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-        <script>
-            var user_id = '{{request.user.id}}'
-            var chat_id = '{{ client.phone_number }}'
-        </script>
-        <script src="{% static 'js/scripts.js' %}"></script>
-        <script>
-            addPhone(parseInt('{{client.phone_number}}'))
-            console.log(phones)
-        </script>
-        <!-- Añade el ID del usuario actual para usarlo en el JavaScript -->
+        <div class="card-body">
+            <div id="chart1"></div>
+        </div>
+    </div>
+    <div class="ms-3 me-3 row row-cols-1 row-cols-md-2 row-cols-lg-4 row-cols-xl-4 g-3">
+        <!-- Balance Card -->
+        <div class="col">
+            <div class="card text-center shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">Balance</h5>
+                    <p class="card-text fs-4 fw-bold">${{ company.remaining_balance|floatformat:2 }}</p>
+                </div>
+            </div>
+        </div>
     
-    </body>
-</html>
+        <!-- Total Messages Card -->
+        <div class="col">
+            <div class="card text-center shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title text-success">Total Messages</h5>
+                    <p class="card-text fs-4 fw-bold">{{message_count}}</p>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Recharge Button Card -->
+        <div class="col">
+            <div class="card text-center shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Recharge</h5>
+                    <a class="btn btn-primary mt-3" href="{{url_recharge}}">Recharge Now</a>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Phone Numbers Card -->
+        <div class="col">
+            <div class="card text-center shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title text-info">Phone Numbers</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">+123 456 7890</li>
+                        <li class="list-group-item">+098 765 4321</li>
+                        <li class="list-group-item">+456 123 7890</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>    
+</div>
+{% endblock %}
+
+{% block plugins_js %}
+<!--plugins-->
+<script src="{% static "assets/js/jquery.min.js" %}"></script>
+<script src="{% static "assets/plugins/simplebar/js/simplebar.min.js" %}"></script>
+<script src="{% static "assets/plugins/metismenu/js/metisMenu.min.js" %}"></script>
+<script src="{% static "assets/plugins/perfect-scrollbar/js/perfect-scrollbar.js" %}"></script>
+<!-- Vector map JavaScript -->
+<script src="{% static "assets/plugins/vectormap/jquery-jvectormap-2.0.2.min.js" %}"></script>
+<script src="{% static "assets/plugins/vectormap/jquery-jvectormap-world-mill-en.js" %}"></script>
+<!-- highcharts js -->
+<script src="{% static "assets/plugins/highcharts/js/highcharts.js" %}"></script>
+<script src="{% static "assets/plugins/apexcharts-bundle/js/apexcharts.min.js" %}"></script>
+
+
+<script>
+    const dayNames = JSON.parse('{{ day_names|safe }}');
+    const messages = JSON.parse('{{ messages|safe }}');
+    
+	var e = {
+		series: [{
+			name: "Message",
+			data: Object.values(messages),
+		}],
+		chart: {
+			foreColor: "#9ba7b2",
+			height: 310,
+			type: "area",
+			zoom: {
+				enabled: !1,
+			},
+			toolbar: {
+				show: !0,
+			},
+			dropShadow: {
+				enabled: !0,
+				top: 3,
+				left: 14,
+				blur: 4,
+				opacity: .1,
+			},
+		},
+		stroke: {
+			width: 5,
+			curve: "smooth",
+		},
+		xaxis: {
+			//type: "datetime",
+			categories: Object.values(dayNames),
+		},
+		title: {
+			text: "Week's messages",
+			align: "left",
+			style: {
+				fontSize: "16px",
+				color: "#666",
+			},
+		},
+		fill: {
+			type: "gradient",
+			gradient: {
+				shade: "light",
+				gradientToColors: ["#0d6efd"],
+				shadeIntensity: 1,
+				type: "vertical",
+				opacityFrom: .7,
+				opacityTo: .2,
+				stops: [0, 100, 100, 100],
+			},
+		},
+		markers: {
+			size: 5,
+			colors: ["#0d6efd"],
+			strokeColors: "#fff",
+			strokeWidth: 2,
+			hover: {
+				size: 7,
+			},
+		},
+		dataLabels: {
+			enabled: !1,
+		},
+		colors: ["#0d6efd"],
+		grid: {
+			show: true,
+			borderColor: 'rgba(0, 0, 0, 0.15)',
+			strokeDashArray: 4,
+		},
+	};
+	new ApexCharts(document.querySelector("#chart1"), e).render();
+</script>
+{% endblock %}

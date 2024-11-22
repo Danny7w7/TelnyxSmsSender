@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f8;
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        .header-logo {
+            background-color: #0d6efd;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+            color: white;
+        }
+        .header-logo img {
+            max-width: 150px;
+        }
+        .content-section {
+            padding: 30px;
+        }
+        .balance-alert {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        .action-button {
+            background-color: #0d6efd;
+            color: white;
+            padding: 12px 30px;
+            font-size: 1rem;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 20px 0;
+            transition: background-color 0.3s ease;
+        }
+        .action-button:hover {
+            background-color: #0b5ed7;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .footer a {
+            color: #0d6efd;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header-logo">
+            <h1>BlueAI</h1>
+        </div>
+        
+        <div class="content-section">
+            <h2 class="text-center mb-4">Recordatorio de Saldo</h2>
+            
+            <p class="lead">Estimado(a) <strong>{{Owner_name}}</strong>,</p>
+            
+            <p>Esperamos que este mensaje le encuentre bien. Nos dirigimos a <strong>{{company}}</strong> para informarle sobre su saldo actual en nuestra plataforma de mensajes de texto.</p>
+            
+            <div class="balance-alert">
+                <h4 class="mb-3">🔔 Aviso Importante</h4>
+                <p>Su saldo actual es de: <strong>{{remaining_balance}}</strong> USD</p>
+            </div>
+            
+            <p>Para evitar cualquier interrupción en nuestros servicios, le recomendamos realizar una recarga antes de que su saldo se agote.</p>
+            
+            <div class="text-center">
+                <a href="{{url_pay}}" class="action-button">
+                    Recargar Saldo Ahora
+                </a>
+            </div>
+            
+            <p class="mt-4">Si tiene alguna pregunta o necesita asistencia, no dude en <a href="#">contactarnos</a>.</p>
+            
+            <p class="mb-0">Saludos cordiales,</p>
+            <p>El equipo de <strong>IT Bluestream Marketing Colombia</strong></p>
+        </div>
+        
+        <div class="footer">
+            <p>Este es un correo automático, por favor no responda a este mensaje.</p>
+            <p>© 2024 Bluestream Marketing Colombia. Todos los derechos reservados.</p>
+            <p><a href="#">Política de privacidad</a> | <a href="#">Términos y condiciones</a></p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

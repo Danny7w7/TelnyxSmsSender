@@ -81,3 +81,13 @@ class Files(models.Model):
         storage=S3Boto3Storage()
     )
     message = models.OneToOneField(Messages, on_delete=models.CASCADE)
+
+class Companies(models.Model):
+    owner = models.CharField(max_length=50)
+    company_name = models.CharField(max_length=50)
+    remaining_balance = models.DecimalField(max_digits=20, decimal_places=6)
+    user_role = models.CharField(max_length=50)
+    company_email = models.EmailField()
+    notified_at_10 = models.BooleanField(default=False)
+    notified_at_5 = models.BooleanField(default=False)
+    notified_at_1 = models.BooleanField(default=False)

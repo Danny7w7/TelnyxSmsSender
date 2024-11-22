@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>¡Gracias por tu Pago!</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #f4f6f8 0%, #e9ecef 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .thank-you-container {
+            max-width: 500px;
+            text-align: center;
+            background-color: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+            transform: perspective(1000px) rotateX(-10deg);
+            opacity: 0;
+            animation: slideIn 1s forwards ease-out;
+        }
+        .thank-you-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(13, 110, 253, 0.1) 0%, transparent 70%);
+            transform: rotate(-45deg);
+            z-index: 1;
+        }
+        .thank-you-icon {
+            font-size: 6rem;
+            color: #28a745;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 6px rgba(40, 167, 69, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: rgba(13, 110, 253, 0.7);
+            opacity: 0;
+            animation: confettiDrop 1.5s infinite;
+        }
+        .go-home-btn {
+            background: linear-gradient(to right, #0d6efd, #4a8cff);
+            color: white;
+            padding: 12px 30px;
+            font-size: 1rem;
+            text-decoration: none;
+            border-radius: 50px;
+            display: inline-block;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+        }
+        .go-home-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: all 0.7s;
+        }
+        .go-home-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
+        }
+        .go-home-btn:hover::before {
+            left: 100%;
+        }
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: perspective(1000px) rotateX(-10deg) translateY(50px);
+            }
+            to { 
+                opacity: 1;
+                transform: perspective(1000px) rotateX(0) translateY(0);
+            }
+        }
+        @keyframes confettiDrop {
+            0%, 100% { opacity: 0; transform: translateY(-100vh) rotate(0deg); }
+            50% { opacity: 1; }
+            100% { opacity: 0; transform: translateY(100vh) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="thank-you-container">
+        <div class="thank-you-icon">✓</div>
+        <h1>¡Gracias por tu Pago!</h1>
+        <p>Tu pago se ha procesado con éxito. Apreciamos tu negocio.</p>
+        <a href="/" class="go-home-btn">Ir al Inicio</a>
+    </div>
+
+    <script>
+        function createConfetti() {
+            const colors = ['#0d6efd', '#28a745', '#dc3545', '#ffc107'];
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = `${Math.random() * 1.5}s`;
+                document.body.appendChild(confetti);
+            }
+        }
+        createConfetti();
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

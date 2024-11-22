@@ -20,7 +20,7 @@ from django.urls import path, include
 from app import views
 
 urlpatterns = [
-    path("admin/", admin.site.urls), 
+    # path("admin/", admin.site.urls), 
     path('login/', views.login_, name='login'),
     path('logout/', views.logout_, name='logout'),
 
@@ -32,5 +32,11 @@ urlpatterns = [
     path('createSecretKey/<id>/', views.sendCreateSecretKey, name='sendCreateSecretKey'),
     path('secret-key/', views.createSecretKey, name='url_temporal'),
 
-    path('sendSecretKey/<client_id>/', views.sendSecretKey, name='sendSecretKey')
+    path('sendSecretKey/<client_id>/', views.sendSecretKey, name='sendSecretKey'),
+
+    path('webhook/', views.stripe_webhook, name='stripe-webhook'),
+    path('payment/<str:type>/<int:company_id>/', views.payment_type, name='payment'),
+
+    #admin
+    path('admin/', views.admin, name='admin')
 ]
