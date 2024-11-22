@@ -117,8 +117,10 @@
 							</div>
 						</a>
 						<ul class="dropdown-menu dropdown-menu-end">
-							<li><a class="dropdown-item d-flex align-items-center" href="javascript:;"><i class="bx bx-home-circle fs-5"></i><span>Dashboard</span></a>
+							{% if request.user.is_staff %}
+							<li><a class="dropdown-item d-flex align-items-center" href="{% url 'admin' %}"><i class="bx bx-home-circle fs-5"></i><span>Dashboard</span></a>
 							</li>
+							{% endif %}
 							<li>
 								<div class="dropdown-divider mb-0"></div>
 							</li>
