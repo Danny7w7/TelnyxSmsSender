@@ -32,9 +32,7 @@ import logging
 from .models import *
 from .utils.email_sender import *
 
-
 # Create your views here.
-
 logger = logging.getLogger('django')
 
 # auth
@@ -69,7 +67,7 @@ def logout_(request):
 
 @csrf_exempt
 def sendMessage(request):
-    if comprobate_company(request.user.role):
+    if comprobate_company(request.user.company):
         return JsonResponse({'message':'No money'})
     telnyx.api_key = settings.TELNYX_API_KEY
     telnyx.Message.create(
@@ -77,11 +75,11 @@ def sendMessage(request):
     to=f'+{request.POST['phoneNumber']}',
     text= request.POST['messageContent']
     )
-    client = createOrUpdateClient(request.POST['phoneNumber'])
+    client = createOrUpdateClient(request.POST['phoneNumber'], request.user.company)
     if request.user.role == 'Customer':
-        chat = createOrUpdateChat(client)
+        chat = createOrUpdateChat(client, request.user.company)
     else:
-        chat = createOrUpdateChat(client, request.user)
+        chat = createOrUpdateChat(client, request.user.company, request.user)
     saveMessageInDb('Agent', request.POST['messageContent'], chat, request.user)
     
     return JsonResponse({'message':'ok'})
@@ -171,35 +169,48 @@ def saveMessageInDb(inboundOrOutbound, message_content, chat, sender=None):
     chat.save()
     return message
     
-def createOrUpdateChat(client, agent=None):
+def createOrUpdateChat(client, company, agent=None):
     try:
-        chat = Chat.objects.get(client_id=client.id)
+        # Intenta obtener un chat existente para el cliente en la empresa especificada
+        chat = Chat.objects.get(client_id=client.id, company_id=company.id)
+
+        # Si se proporciona un nuevo agente, actualiza el chat
         if agent:
             chat.agent = agent
             chat.save()
+
     except Chat.DoesNotExist:
+        # Si el chat no existe, crea uno nuevo
         if not agent:
-            agent = Users.objects.get(id=2)
+            # Define un agente por defecto si no se proporciona (opcional)
+            agent = Users.objects.get(id=2)  # ID de un agente genérico
+
         chat = Chat(
             agent=agent,
-            client=client
+            client=client,
+            company=company  # Asocia el chat con la compañía
         )
         chat.save()
+
     return chat
 
-def createOrUpdateClient(phoneNumber, name=None):
+def createOrUpdateClient(phoneNumber, company, name=None):
     try:
-        client = Clients.objects.get(phone_number=phoneNumber)
+        # Busca un cliente único por número de teléfono y compañía
+        client = Clients.objects.get(phone_number=phoneNumber, company=company)
         if name:
-            client.name = name
+            client.name = name  # Actualiza el nombre si se proporciona
             client.save()
     except Clients.DoesNotExist:
+        # Crea un nuevo cliente si no existe
         client = Clients(
             phone_number=phoneNumber,
+            company=company,
             name=name
         )
         client.save()
     return client
+
 
 def deleteClient(request ,id):
     if request.user.is_superuser:
@@ -209,8 +220,8 @@ def deleteClient(request ,id):
 
 @login_required(login_url='/login')
 def index(request):
-    if request.user.is_superuser:
-        chats = Chat.objects.select_related('client').all().order_by('-last_message')
+    if request.user.is_staff:
+        chats = Chat.objects.select_related('client').filter(company=request.user.company).order_by('-last_message')
     else:
         chats = Chat.objects.select_related('client').filter(agent_id=request.user.id).order_by('-last_message')
     chats = get_last_message_for_chats(chats)
@@ -218,8 +229,8 @@ def index(request):
     if request.method == 'POST':
         phoneNumber = request.POST.get('phoneNumber')
         name = request.POST.get('name', None)
-        client = createOrUpdateClient(phoneNumber, name)
-        chat = createOrUpdateChat(client, request.user)
+        client = createOrUpdateClient(phoneNumber, request.user.company, name)
+        chat = createOrUpdateChat(client, request.user.company, request.user)
         return redirect('chat', client.phone_number)
     return render(request, 'sms/index.html', {'chats': chats})
 
@@ -228,12 +239,12 @@ def chat(request, phoneNumber):
     if request.method == 'POST':
         phoneNumber = request.POST.get('phoneNumber')
         name = request.POST.get('name', None)
-        client = createOrUpdateClient(phoneNumber, name)
-        chat = createOrUpdateChat(client, request.user)
+        client = createOrUpdateClient(phoneNumber, request.user.company, name)
+        chat = createOrUpdateChat(client, request.user.company, request.user)
         return redirect('chat', client.phone_number)
     
-    client = Clients.objects.get(phone_number=phoneNumber)
-    chat = Chat.objects.get(client=client.id)
+    client = Clients.objects.get(phone_number=phoneNumber, company=request.user.company)
+    chat = Chat.objects.get(client=client.id, company=request.user.company)
     secretKey = SecretKey.objects.filter(client=client).filter()
     # Usamos select_related para optimizar las consultas
     messages = Messages.objects.filter(chat=chat.id).select_related('files')
@@ -263,7 +274,7 @@ def chat(request, phoneNumber):
         messages_with_files.append(message_dict)
 
     if request.user.is_superuser:
-        chats = Chat.objects.select_related('client').all().order_by('-last_message')
+        chats = Chat.objects.select_related('client').filter(company=request.user.company).order_by('-last_message')
     else:
         chats = Chat.objects.select_related('client').filter(agent_id=request.user.id).order_by('-last_message')
     chats = get_last_message_for_chats(chats)
@@ -549,18 +560,18 @@ def invalidate_temporary_url(request, token):
     except TemporaryURL.DoesNotExist:
         print("Esta URL temporal no existe chamo")
 
-def comprobate_company(user_role):
-    companies = Companies.objects.all()
-    for company in companies:
-        if company.user_role == user_role:
-            if company.remaining_balance <= 0:
-                disableAllUserCompany(company)
-                return True
-            else:
-                discountRemainingBalance(company)
-                paymend_recording(company)
-                return False
-            break
+def comprobate_company(company):
+    print(company)
+    if company.id == 1:
+        print('Tu eres lapeira mi rey dale pa lante')
+        return False
+    if company.remaining_balance <= 0:
+        disableAllUserCompany(company)
+        return True
+    else:
+        discountRemainingBalance(company)
+        paymend_recording(company)
+        return False
 
 def discountRemainingBalance(companyObject):
     companyObject.remaining_balance -= Decimal('0.03')
@@ -624,13 +635,13 @@ def admin(request):
     now = datetime.now()
     seven_days_ago = now - timedelta(days=6)
 
-    # Obtener usuarios con el rol "Better25"
-    better25_users = Users.objects.filter(role="Better25")
-    company = Companies.objects.get(user_role="Better25")
+    # Obtener usuarios de la compañia
+    company_users = Users.objects.filter(company=request.user.company)
+    company = Companies.objects.get(id=request.user.company.id)
 
-    # Filtrar mensajes de los últimos 7 días y asociados a chats de usuarios "Better25"
+    # Filtrar mensajes de los últimos 7 días y asociados a chats de usuarios
     messages = Messages.objects.filter(
-        chat__agent__in=better25_users,
+        chat__agent__in=company_users,
         created_at__gte=seven_days_ago
     )
 
