@@ -86,9 +86,10 @@ def sendMessage(request):
 
 @csrf_exempt
 @require_POST
-def sms(request):
+def sms(request, company_id):
     try:
         body = json.loads(request.body)
+        company = Companies.objects.get(id=company_id)
         
         # Imprimir el cuerpo completo
         # print("Cuerpo completo de la solicitud:")
@@ -98,8 +99,8 @@ def sms(request):
         if 'data' in body and 'payload' in body['data']:
             payload = body['data']['payload']
             if body['data'].get('event_type') == 'message.received':
-                client = createOrUpdateClient(int(payload.get('from', {}).get('phone_number')))
-                chat = createOrUpdateChat(client)
+                client = createOrUpdateClient(int(payload.get('from', {}).get('phone_number')), company)
+                chat = createOrUpdateChat(client, company)
                 message = saveMessageInDb('Client', payload.get('text'), chat)
 
                 if payload.get('type') == 'MMS':
