@@ -109,8 +109,13 @@ def sms(request, company_id):
                         media_url = media[0].get('url')
                         fileUrl = save_image_from_url(message, media_url)
                         SendMessageWebsocketChannel('MMS', payload, client, fileUrl)
+                        if company.id != 1:
+                            discountRemainingBalance(company, '0.027')
+                        
                 else:
                     SendMessageWebsocketChannel('SMS', payload, client)
+                    if company.id != 1:
+                        discountRemainingBalance(company, '0.025')
 
             return HttpResponse("Webhook recibido correctamente", status=200)
     except json.JSONDecodeError:
@@ -562,20 +567,18 @@ def invalidate_temporary_url(request, token):
         print("Esta URL temporal no existe chamo")
 
 def comprobate_company(company):
-    print(company)
-    if company.id == 1:
-        print('Tu eres lapeira mi rey dale pa lante')
+    if company.id == 1: #No descuenta el saldo a Lapeira
         return False
     if company.remaining_balance <= 0:
         disableAllUserCompany(company)
         return True
     else:
-        discountRemainingBalance(company)
+        discountRemainingBalance(company, '0.035')
         paymend_recording(company)
         return False
 
-def discountRemainingBalance(companyObject):
-    companyObject.remaining_balance -= Decimal('0.03')
+def discountRemainingBalance(companyObject, discount):
+    companyObject.remaining_balance -= Decimal(discount)
     companyObject.save()
 
 def disableAllUserCompany(companyObject):
