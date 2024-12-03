@@ -179,6 +179,14 @@
 			borderColor: 'rgba(0, 0, 0, 0.15)',
 			strokeDashArray: 4,
 		},
+        tooltip: {
+            theme: 'dark',  // Esto asegura que el tooltip tenga un fondo oscuro
+            y: {
+                formatter: function(val) {
+                    return val + " items";
+                }
+            }
+        },
 	};
 	new ApexCharts(document.querySelector("#chart1"), e).render();
 </script>
