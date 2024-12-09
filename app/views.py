@@ -268,10 +268,21 @@ def chat(request, phoneNumber):
     if request.method == 'POST':
         phoneNumber = request.POST.get('phoneNumber')
         name = request.POST.get('name', None)
-        client = createOrUpdateClient(phoneNumber, request.user.company, name)
+        client, created = createOrUpdateClient(phoneNumber, request.user.company, name)
         chat = createOrUpdateChat(client, request.user.company, request.user)
-        return redirect('chat', client.phone_number)
-    
+        if created:
+            if request.POST.get('language') == 'english':
+                message = "Reply YES to receive updates and information about your policy from Lapeira & Associates LLC. Msg & data rates may apply. Up to 5 msgs/month. Reply STOP to opt-out at any time."
+            else: 
+                message = "Favor de responder SI para recibir actualizaciones e información sobre su póliza de Lapeira & Associates LLC. Pueden aplicarse tarifas estándar de mensaje y datos. Hasta 5 mensajes/mes. Responder STOP para cancelar en cualquier momento."
+            sendIndividualsSms(
+                request.user.assigned_phone.phone_number,
+                phoneNumber,
+                request.user,
+                request.user.company,
+                message
+            )
+            
     client = Clients.objects.get(phone_number=phoneNumber, company=request.user.company)
     chat = Chat.objects.get(client=client.id, company=request.user.company)
     secretKey = SecretKey.objects.filter(client=client).filter()
