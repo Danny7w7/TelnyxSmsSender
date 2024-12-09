@@ -22,6 +22,9 @@ $(function () {
             var msj = datamsj.message;
             var type = datamsj.type
             addMessage(msj, 'Client', type);
+            if (inputMessage.disabled) {
+                activateTextArea(msj)
+            }
         };
         inputMessage.style.height = '40px'
         buttonSendMessage.addEventListener('click', sendMessage);
@@ -152,6 +155,15 @@ $(function () {
             flexContainer.appendChild(contentContainer);
             chatContent.appendChild(flexContainer);
             boxMessage.appendChild(chatContent);
+        }
+    }
+    function activateTextArea(msg) {    
+        // Convertimos el mensaje a mayúsculas para evitar problemas de comparación
+        const upperMsg = msg.toUpperCase();
+    
+        // Verificamos si el mensaje contiene "YES" o "SI"
+        if (upperMsg.includes("YES") || upperMsg.includes("SI")) {
+            inputMessage.disabled = false; // Habilita el textarea
         }
     }
 });

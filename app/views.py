@@ -71,9 +71,9 @@ def sendMessage(request):
         return JsonResponse({'message':'No money'})
     telnyx.api_key = settings.TELNYX_API_KEY
     telnyx.Message.create(
-    from_=f"+{request.user.assigned_phone.phone_number}", # Your Telnyx number
-    to=f'+{request.POST['phoneNumber']}',
-    text= request.POST['messageContent']
+        from_=f"+{request.user.assigned_phone.phone_number}", # Your Telnyx number
+        to=f'+{request.POST['phoneNumber']}',
+        text= request.POST['messageContent']
     )
     client = createOrUpdateClient(request.POST['phoneNumber'], request.user.company)
     if request.user.role == 'Customer':
@@ -99,9 +99,12 @@ def sms(request, company_id):
         if 'data' in body and 'payload' in body['data']:
             payload = body['data']['payload']
             if body['data'].get('event_type') == 'message.received':
-                client = createOrUpdateClient(int(payload.get('from', {}).get('phone_number')), company)
+                client, created = createOrUpdateClient(int(payload.get('from', {}).get('phone_number')), company)
                 chat = createOrUpdateChat(client, company)
                 message = saveMessageInDb('Client', payload.get('text'), chat)
+                
+                if not client.is_active:
+                    activateClient(client, payload.get('text'))
 
                 if payload.get('type') == 'MMS':
                     media = payload.get('media', [])
@@ -201,28 +204,36 @@ def createOrUpdateChat(client, company, agent=None):
     return chat
 
 def createOrUpdateClient(phoneNumber, company, name=None):
-    try:
-        # Busca un cliente único por número de teléfono y compañía
-        client = Clients.objects.get(phone_number=phoneNumber, company=company)
-        if name:
-            client.name = name  # Actualiza el nombre si se proporciona
-            client.save()
-    except Clients.DoesNotExist:
-        # Crea un nuevo cliente si no existe
-        client = Clients(
-            phone_number=phoneNumber,
-            company=company,
-            name=name
-        )
+    # Intenta obtener o crear un cliente
+    client, created = Clients.objects.get_or_create(
+        phone_number=phoneNumber,
+        company=company,
+        defaults={
+            'name': name,
+            'is_active': False
+            }
+    )
+    if not created and name:
+        # Si el cliente ya existía y se proporcionó un nombre, actualizamos el nombre
+        client.name = name
         client.save()
-    return client
+        created = False  # El cliente no fue creado, solo actualizado
+    return client, created
 
-
-def deleteClient(request ,id):
+def deleteClient(request, id):
     if request.user.is_superuser:
         client = Clients.objects.get(id=id)
         client.delete()
     return redirect(index)
+
+def activateClient(client, message):
+    message_upper = message.upper()
+    if 'YES' in message_upper or 'SI' in message_upper:
+        client.is_active = True
+        client.save()
+        print(f'Cliente {client} activado.')
+    else:
+        print('El mensaje no contiene "YES". No se activa al cliente.')
 
 @login_required(login_url='/login')
 def index(request):
@@ -235,8 +246,20 @@ def index(request):
     if request.method == 'POST':
         phoneNumber = request.POST.get('phoneNumber')
         name = request.POST.get('name', None)
-        client = createOrUpdateClient(phoneNumber, request.user.company, name)
+        client, created = createOrUpdateClient(phoneNumber, request.user.company, name)
         chat = createOrUpdateChat(client, request.user.company, request.user)
+        if created:
+            if request.POST.get('language') == 'english':
+                message = "Reply YES to receive updates and information about your policy from Lapeira & Associates LLC. Msg & data rates may apply. Up to 5 msgs/month. Reply STOP to opt-out at any time."
+            else: 
+                message = "Favor de responder SI para recibir actualizaciones e información sobre su póliza de Lapeira & Associates LLC. Pueden aplicarse tarifas estándar de mensaje y datos. Hasta 5 mensajes/mes. Responder STOP para cancelar en cualquier momento."
+            sendIndividualsSms(
+                request.user.assigned_phone.phone_number,
+                phoneNumber,
+                request.user,
+                request.user.company,
+                message
+            )
         return redirect('chat', client.phone_number)
     return render(request, 'sms/index.html', {'chats': chats})
 
@@ -291,6 +314,19 @@ def chat(request, phoneNumber):
         'secretKey':secretKey
     }
     return render(request, 'sms/chat.html', context)
+
+def sendIndividualsSms(from_number, to_number, user, company, message_context):
+    telnyx.api_key = settings.TELNYX_API_KEY
+    telnyx.Message.create(
+        from_=f"+{from_number}", # Your Telnyx number
+        to=f'+{to_number}',
+        text= message_context
+    )
+    client, created = createOrUpdateClient(to_number, company)
+    chat = createOrUpdateChat(client, company)
+    saveMessageInDb('Agent', message_context, chat, user)
+    
+    return True
 
 def sendSecretKey(request, client_id):
     client = Clients.objects.get(id=client_id)

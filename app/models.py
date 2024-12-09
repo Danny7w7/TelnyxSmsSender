@@ -44,6 +44,7 @@ class Clients(models.Model):
     phone_number = models.BigIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField()
 
     class Meta:
         unique_together = ('company', 'phone_number')  # Restricción de unicidad por compañía y número de teléfono

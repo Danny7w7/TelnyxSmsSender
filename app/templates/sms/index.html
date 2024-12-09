@@ -272,7 +272,7 @@
 					<div class="chat-footer d-flex align-items-center">
 						<div class="flex-grow-1 pe-2">
 							<div class="input-group">
-								<textarea id="messageContent" class="form-control" placeholder="Type a message"></textarea>
+								<textarea {%if not client.is_active%}disabled{%endif%} id="messageContent" class="form-control" placeholder="Type a message"></textarea>
 							</div>
 						</div>
 						<div class="chat-footer-menu" id="sendMessage">
@@ -302,7 +302,13 @@
 						<label for="name" class="form-label">Name</label>
 						<input type="text" class="form-control mb-3" name="name" id="name" placeholder="Enter the client's name"/>
 						<label for="phoneNumber" class="form-label">Phone Number</label>
-						<input type="number" class="form-control" name="phoneNumber" id="phoneNumber" placeholder="Example: 17863034781" required/>
+						<input type="number" class="form-control mb-3" name="phoneNumber" id="phoneNumber" placeholder="Example: 17863034781" required/>
+						<label for="language" class="form-label">Select language</label>
+						<select class="form-select" aria-label="Default select example" name="language" id="language">
+							<option selected disabled>Select language</option>
+							<option value="english">English</option>
+							<option value="spanish">Spanish</option>
+						</select>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
