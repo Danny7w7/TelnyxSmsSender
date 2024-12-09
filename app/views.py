@@ -75,7 +75,7 @@ def sendMessage(request):
         to=f'+{request.POST['phoneNumber']}',
         text= request.POST['messageContent']
     )
-    client = createOrUpdateClient(request.POST['phoneNumber'], request.user.company)
+    client, created = createOrUpdateClient(request.POST['phoneNumber'], request.user.company)
     if request.user.role == 'Customer':
         chat = createOrUpdateChat(client, request.user.company)
     else:
