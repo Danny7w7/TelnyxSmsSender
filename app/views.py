@@ -313,7 +313,7 @@ def chat(request, phoneNumber):
             
         messages_with_files.append(message_dict)
 
-    if request.user.is_superuser:
+    if request.user.is_staff:
         chats = Chat.objects.select_related('client').filter(company=request.user.company).order_by('-last_message')
     else:
         chats = Chat.objects.select_related('client').filter(agent_id=request.user.id).order_by('-last_message')
