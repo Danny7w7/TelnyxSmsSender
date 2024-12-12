@@ -336,7 +336,8 @@ def sendIndividualsSms(from_number, to_number, user, company, message_context):
     client, created = createOrUpdateClient(to_number, company)
     chat = createOrUpdateChat(client, company)
     saveMessageInDb('Agent', message_context, chat, user)
-    discountRemainingBalance(company, '0.035')
+    if company.id != 1: #No descuenta el saldo a Lapeira
+        discountRemainingBalance(company, '0.035')
     
     return True
 
