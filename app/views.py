@@ -425,7 +425,7 @@ def create_stripe_checkout_session(company_id):
         checkout_session = stripe.checkout.Session.create(
             line_items=[
                 {
-                    'price': 'price_1QSSDDHakpVhxYcD1d0EM7XV',
+                    'price': 'price_1QVb5VHakpVhxYcDA76MthLK',
                     'quantity': 1,
                 },
             ],
