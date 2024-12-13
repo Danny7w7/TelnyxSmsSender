@@ -648,10 +648,13 @@ def disableAllUserCompany(companyObject):
         user.is_active = 0
         user.save()
 
+from django.utils.translation import activate, gettext as _
+
 def paymend_recording(company):
     def format_mail_recording(company):
+        activate(company.language_preference)
         send_email(
-            subject=f"Tu saldo en SMS Blue es de {company.remaining_balance:.2f} USD. No te quedes sin servicio",
+            subject=_("Tu saldo en SMS Blue es de {balance:.2f} USD. No te quedes sin servicio").format(balance=company.remaining_balance),
             receiver_email=company.company_email,
             template_name="email_templates/payment_reminder",
             context_data={

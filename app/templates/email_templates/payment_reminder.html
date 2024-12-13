@@ -1,3 +1,4 @@
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -80,35 +81,38 @@
         </div>
         
         <div class="content-section">
-            <h2 class="text-center mb-4">Recordatorio de Saldo</h2>
+            <h2 class="text-center mb-4">{% trans "Recordatorio de Saldo" %}</h2>
             
-            <p class="lead">Estimado(a) <strong>{{Owner_name}}</strong>,</p>
+            <p class="lead">{% trans "Estimado(a) " %}<strong>{{Owner_name}}</strong>,</p>
             
-            <p>Esperamos que este mensaje le encuentre bien. Nos dirigimos a <strong>{{company}}</strong> para informarle sobre su saldo actual en nuestra plataforma de mensajes de texto.</p>
+            <p>{% blocktrans with company=company %}Esperamos que este mensaje le encuentre bien. Nos dirigimos a <strong>{{ company }}</strong> para informarle sobre su saldo actual en nuestra plataforma de mensajes de texto.{% endblocktrans %}</p>
             
             <div class="balance-alert">
-                <h4 class="mb-3">🔔 Aviso Importante</h4>
-                <p>Su saldo actual es de: <strong>{{remaining_balance}}</strong> USD</p>
+                <h4 class="mb-3">{% trans "🔔 Aviso Importante" %}</h4>
+                <p>{% trans "Su saldo actual es de: " %}<strong>{{remaining_balance}}</strong> USD</p>
             </div>
             
-            <p>Para evitar cualquier interrupción en nuestros servicios, le recomendamos realizar una recarga antes de que su saldo se agote.</p>
+            <p>{% blocktrans %}Para evitar cualquier interrupción en nuestros servicios, le recomendamos realizar una recarga antes de que su saldo se agote.{% endblocktrans %}</p>
             
             <div class="text-center">
                 <a href="{{url_pay}}" class="action-button">
-                    Recargar Saldo Ahora
+                    {% trans "Recargar Saldo Ahora" %}
                 </a>
             </div>
             
-            <p class="mt-4">Si tiene alguna pregunta o necesita asistencia, no dude en <a href="#">contactarnos</a>.</p>
+            <p class="mt-4">{% blocktrans %}Si tiene alguna pregunta o necesita asistencia, no dude en <a href="#">contactarnos</a>.{% endblocktrans %}</p>
             
-            <p class="mb-0">Saludos cordiales,</p>
-            <p>El equipo de <strong>IT Bluestream Marketing Colombia</strong></p>
+            <p class="mb-0">{% trans "Saludos cordiales," %}</p>
+            <p>{% blocktrans %}<strong>Lapeira & Associates LLC{% endblocktrans %}</strong></p>
+            <p>{% blocktrans %}El equipo de <strong>Soporte{% endblocktrans %}</strong></p>
         </div>
         
         <div class="footer">
+            {% blocktrans %}
             <p>Este es un correo automático, por favor no responda a este mensaje.</p>
             <p>© 2024 Bluestream Marketing Colombia. Todos los derechos reservados.</p>
             <p><a href="#">Política de privacidad</a> | <a href="#">Términos y condiciones</a></p>
+            {% endblocktrans %}
         </div>
     </div>
 

@@ -10,6 +10,7 @@ class Companies(models.Model):
     remaining_balance = models.DecimalField(max_digits=20, decimal_places=6)
     user_role = models.CharField(max_length=50)
     company_email = models.EmailField()
+    language_preference = models.CharField(max_length=2)
     notified_at_10 = models.BooleanField(default=False)
     notified_at_5 = models.BooleanField(default=False)
     notified_at_1 = models.BooleanField(default=False)
