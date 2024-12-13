@@ -648,8 +648,9 @@ def disableAllUserCompany(companyObject):
     )
 
     for user in usersCompany:
-        user.is_active = False
-        user.save()
+        if not user.is_staff:
+            user.is_active = False
+            user.save()
 
 from django.utils.translation import activate, gettext as _
 
