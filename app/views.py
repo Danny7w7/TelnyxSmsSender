@@ -468,6 +468,9 @@ def stripe_webhook(request):
 
         company = Companies.objects.get(id=company_id)
         company.remaining_balance += amount
+        company.notified_at_10 = False
+        company.notified_at_5 = False
+        company.notified_at_1 = False
         company.save()
 
         send_email(
@@ -645,7 +648,7 @@ def disableAllUserCompany(companyObject):
     )
 
     for user in usersCompany:
-        user.is_active = 0
+        user.is_active = False
         user.save()
 
 from django.utils.translation import activate, gettext as _
