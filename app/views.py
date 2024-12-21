@@ -231,7 +231,7 @@ def deleteClient(request, id):
 
 def activateClient(client, message):
     message_upper = message.upper()
-    if 'YES' in message_upper or 'SI' in message_upper or 'START' in message_upper:
+    if message_upper == 'YES' or message_upper == 'SI' or message_upper == 'START':
         client.is_active = True
         client.save()
 

@@ -164,10 +164,10 @@ $(function () {
         const upperMsg = msg.toUpperCase();
     
         // Verificamos si el mensaje contiene "YES" o "SI"
-        if (upperMsg.includes("YES") || upperMsg.includes("SI") || upperMsg.includes("START")) {
+        if (upperMsg == "YES" || upperMsg == "SI" || upperMsg == "START") {
             inputMessage.disabled = false; // Habilita el textarea
         }
-        if (upperMsg.includes("STOP")) {
+        if (upperMsg == "STOP") {
             inputMessage.disabled = true; // Habilita el textarea
         }
     }
