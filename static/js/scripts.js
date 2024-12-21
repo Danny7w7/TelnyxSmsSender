@@ -55,7 +55,16 @@ $(function () {
         }
     }
 
-    function addMessage(text, type, typemsj, clientData = {}, messageTime = '2:35 PM') {
+    function getCurrentTime() {
+        const now = new Date();
+        let hours = now.getHours();
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12; // Convert to 12-hour format and handle midnight
+        return `${hours}:${minutes} ${ampm}`;
+    }
+
+    function addMessage(text, type, typemsj, messageTime = getCurrentTime()) {
         if (type == 'Client') {
             const chatContent = document.createElement('div');
             chatContent.classList.add('chat-content-leftside');
@@ -93,7 +102,7 @@ $(function () {
             // Create time paragraph
             const timeParagraph = document.createElement('p');
             timeParagraph.classList.add('mb-0', 'chat-time');
-            const clientName = clientData.name || chat_id;
+            const clientName = chat_name || chat_id;
             timeParagraph.textContent = `${clientName}, ${messageTime}`;
         
             // Create message content
@@ -134,7 +143,7 @@ $(function () {
             // Create time paragraph
             const timeParagraph = document.createElement('p');
             timeParagraph.classList.add('mb-0', 'chat-time', 'text-end');
-            timeParagraph.textContent = `you, ${messageTime}`;
+            timeParagraph.textContent = `${username}, ${messageTime}`;
     
             // Create message content
             const messageParagraph = document.createElement('p');
