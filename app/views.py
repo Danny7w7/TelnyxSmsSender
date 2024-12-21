@@ -106,6 +106,9 @@ def sms(request, company_id):
                 if not client.is_active:
                     activateClient(client, payload.get('text'))
 
+                if client.is_active:
+                    deactivateClient(client, payload.get('text'))
+
                 if payload.get('type') == 'MMS':
                     media = payload.get('media', [])
                     if media:
@@ -228,12 +231,15 @@ def deleteClient(request, id):
 
 def activateClient(client, message):
     message_upper = message.upper()
-    if 'YES' in message_upper or 'SI' in message_upper:
+    if 'YES' in message_upper or 'SI' in message_upper or 'START' in message_upper:
         client.is_active = True
         client.save()
-        print(f'Cliente {client} activado.')
-    else:
-        print('El mensaje no contiene "YES". No se activa al cliente.')
+
+def deactivateClient(client, message):
+    message_upper = message.upper()
+    if message_upper == 'STOP':
+        client.is_active = False
+        client.save()
 
 @login_required(login_url='/login')
 def index(request):

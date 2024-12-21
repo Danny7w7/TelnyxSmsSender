@@ -24,6 +24,8 @@ $(function () {
             addMessage(msj, 'Client', type);
             if (inputMessage.disabled) {
                 activateTextArea(msj)
+            }else{
+                activateTextArea(msj)
             }
         };
         inputMessage.style.height = '40px'
@@ -162,8 +164,11 @@ $(function () {
         const upperMsg = msg.toUpperCase();
     
         // Verificamos si el mensaje contiene "YES" o "SI"
-        if (upperMsg.includes("YES") || upperMsg.includes("SI")) {
+        if (upperMsg.includes("YES") || upperMsg.includes("SI") || upperMsg.includes("START")) {
             inputMessage.disabled = false; // Habilita el textarea
+        }
+        if (upperMsg.includes("STOP")) {
+            inputMessage.disabled = true; // Habilita el textarea
         }
     }
 });
