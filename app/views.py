@@ -230,8 +230,11 @@ def deleteClient(request, id):
     return redirect(index)
 
 def activateClient(client, message):
-    message_upper = message.upper()
-    if message_upper == 'YES' or message_upper == 'SI' or message_upper == 'START':
+    # Limpiar el mensaje eliminando espacios al principio y al final, así como cualquier puntuación extra.
+    cleaned_message = re.sub(r'[^a-zA-Z]+', '', message.strip()).upper()
+
+    # Verificar si el mensaje es 'YES' o 'SI' o 'START'
+    if cleaned_message == 'YES' or cleaned_message == 'SI' or cleaned_message == 'START':
         client.is_active = True
         client.save()
 
