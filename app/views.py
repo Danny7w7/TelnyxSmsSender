@@ -4,6 +4,7 @@ from decimal import Decimal
 import json
 import requests
 import smtplib
+import re
 
 # Third-party imports
 import telnyx
