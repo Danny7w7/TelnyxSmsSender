@@ -17,7 +17,7 @@
                             <img class="img-responsive" src="{{ message.file.file.url }}" alt="">
                         </p>
                         {% else %}
-                        <p class="chat-left-msg">{{message.message_content|linebreaksbr}}</p>
+                        <p class="chat-left-msg" style="white-space: pre-wrap;">{{message.message_content}}</p>
                         {% endif %}
                     </div>
                 </div>
