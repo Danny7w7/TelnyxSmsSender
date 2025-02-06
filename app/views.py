@@ -339,7 +339,7 @@ def chat(request, phoneNumber):
 def sendIndividualsSms(from_number, to_number, user, company, message_context):
     telnyx.api_key = settings.TELNYX_API_KEY
     telnyx.Message.create(
-        from_=f"+{from_number}", # Your Telnyx number
+        from_=f"+17868404556", # Your Telnyx number
         to=f'+{to_number}',
         text= message_context
     )
@@ -358,9 +358,9 @@ def sendSecretKey(request, client_id):
 
     telnyx.api_key = settings.TELNYX_API_KEY
     telnyx.Message.create(
-    from_=f"+17869848405", # Your Telnyx number
-    to=f'+{client.phone_number}',
-    text=generate_temporary_url(request, client, secretKey.secretKey)
+        from_=f"+{request.user.assigned_phone.phone_number}", # Your Telnyx number
+        to=f'+{client.phone_number}',
+        text=generate_temporary_url(request, client, secretKey.secretKey)
     )
     saveMessageInDb('Agent', 'Link to secret key sent', chat, request.user)
     return redirect('chat', client.phone_number)
@@ -368,11 +368,12 @@ def sendSecretKey(request, client_id):
 def sendCreateSecretKey(request, id):
     client = Clients.objects.get(id=id)
     chat = Chat.objects.get(client=client)
+    
     telnyx.api_key = settings.TELNYX_API_KEY
     telnyx.Message.create(
-    from_=f"+17869848405", # Your Telnyx number
-    to=f'+{client.phone_number}',
-    text= generate_temporary_url(request, client)
+        from_=f"+{request.user.assigned_phone.phone_number}", # Your Telnyx number
+        to=f'+{client.phone_number}',
+        text= generate_temporary_url(request, client)
     )
 
     saveMessageInDb('Agent', 'Secret key creation link sent', chat, request.user)
