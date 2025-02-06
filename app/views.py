@@ -196,7 +196,7 @@ def createOrUpdateChat(client, company, agent=None):
         # Si el chat no existe, crea uno nuevo
         if not agent:
             # Define un agente por defecto si no se proporciona (opcional)
-            agent = Users.objects.get(id=2)  # ID de un agente genérico
+            agent = Users.objects.get(id=29)  # ID de un agente genérico (En este caso sera el ID de Maria Carolina.)
 
         chat = Chat(
             agent=agent,
@@ -262,7 +262,7 @@ def index(request):
             if request.POST.get('language') == 'english':
                 message = "Reply YES to receive updates and information about your policy from Lapeira & Associates LLC. Msg & data rates may apply. Up to 5 msgs/month. Reply STOP to opt-out at any time."
             else: 
-                message = "Favor de responder SI para recibir actualizaciones e información sobre su póliza de Lapeira & Associates LLC. Por su seguridad se le estara enviando su codigo secretoa travez del siguiente numero: +1 (786) 984 8405. Pueden aplicarse tarifas estándar de mensaje y datos. Hasta 5 mensajes/mes. Responder STOP para cancelar en cualquier momento."
+                message = "Favor de responder SI para recibir actualizaciones e información sobre su póliza de Lapeira & Associates LLC. Pueden aplicarse tarifas estándar de mensaje y datos. Hasta 5 mensajes/mes. Responder STOP para cancelar en cualquier momento."
             sendIndividualsSms(
                 request.user.assigned_phone.phone_number,
                 phoneNumber,
