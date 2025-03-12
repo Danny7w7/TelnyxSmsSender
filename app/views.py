@@ -339,7 +339,7 @@ def chat(request, phoneNumber):
 def sendIndividualsSms(from_number, to_number, user, company, message_context):
     telnyx.api_key = settings.TELNYX_API_KEY
     telnyx.Message.create(
-        from_=f"+17868404556", # Your Telnyx number
+        from_=f"+{from_number}", # Your Telnyx number
         to=f'+{to_number}',
         text= message_context
     )
