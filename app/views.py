@@ -196,8 +196,7 @@ def createOrUpdateChat(client, company, agent=None):
         # Si el chat no existe, crea uno nuevo
         if not agent:
             # Define un agente por defecto si no se proporciona (opcional)
-            agent = Users.objects.get(id=29)  # ID de un agente genérico (En este caso sera el ID de Maria Carolina.)
-
+            agent = Users.objects.get(id=30)  # ID de un agente genérico (En este caso sera el ID de Andra Alzate)
         chat = Chat(
             agent=agent,
             client=client,
@@ -214,7 +213,7 @@ def createOrUpdateClient(phoneNumber, company, name=None):
         company=company,
         defaults={
             'name': name,
-            'is_active': False
+            'is_active': True
             }
     )
     if not created and name:
